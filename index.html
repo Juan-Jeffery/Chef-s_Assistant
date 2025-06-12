@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>料理排程器</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .section { margin-top: 2em; }
+    .timeline-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .timeline-label {
+      width: 80px;
+      font-weight: bold;
+    }
+    .step-container {
+      flex-grow: 1;
+      position: relative;
+      height: 50px; /* 底色高度 */
+      background: #f0f0f0;
+      max-width: 900px; /* 限制最大寬度讓它不會太窄 */
+    }
+
+    .step-block {
+      position: absolute;
+      top: 0;
+      height: 50px; /* 與底色同高 */
+      border-radius: 4px;
+      padding: 3px 6px; /* 上下左右都有padding */
+      font-size: 12px;
+      color: #fff;
+      white-space: normal;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.2em;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+
+    label { margin-right: 10px; display: inline-block; }
+  </style>
+</head>
+<body>
+  <h1>料理排程器</h1>
+
+  <!-- 選擇鍋具 -->
+  <div class="section">
+    <h2>1. 選擇擁有的鍋具</h2>
+    <input type="checkbox" name="tools" value="電鍋"> 電鍋
+    <input type="checkbox" name="tools" value="湯鍋"> 湯鍋
+    <input type="checkbox" name="tools" value="炒鍋"> 炒鍋
+  </div>
+
+  <!-- 可選料理 -->
+  <div class="section">
+    <h2>2. 可做料理（點擊加入下方清單）</h2>
+    <div id="filteredRecipes"></div>
+  </div>
+
+  <!-- 已選料理 -->
+  <div class="section">
+    <h2>3. 所選料理（勾選欲排程項目）</h2>
+    <div id="selectedRecipes"></div>
+  </div>
+
+  <!-- 排程 -->
+  <div class="section">
+    <button id="btnSchedule">產生排程</button>
+    <h2>排程結果</h2>
+    <div id="scheduleResult"></div>
+  </div>
+
+  <script type="module">
+    import { recipes } from './recipes.js';
+    import { scheduleRecipes } from './scheduler.js';
+
+    const filteredContainer = document.getElementById('filteredRecipes');
+    const selectedContainer = document.getElementById('selectedRecipes');
+    const scheduleResult = document.getElementById('scheduleResult');
+
+    let selectedRecipeSet = new Set();
+
+    function getSelectedTools() {
+      return Array.from(document.querySelectorAll('input[name="tools"]:checked')).map(cb => cb.value);
+    }
+
+    function getUsedTools(recipe) {
+      return recipe.steps.map(s => s.tool).filter(Boolean);
+    }
+
+    function renderFilteredRecipes() {
+      const tools = getSelectedTools();
+      filteredContainer.innerHTML = '';
+
+      recipes.forEach(r => {
+        const toolsNeeded = getUsedTools(r);
+        const allToolsAvailable = toolsNeeded.every(t => tools.includes(t));
+        if (allToolsAvailable) {
+          const btn = document.createElement('button');
+          btn.textContent = r.name;
+          btn.onclick = () => {
+            selectedRecipeSet.add(r.id);
+            renderSelectedRecipes();
+          };
+          filteredContainer.appendChild(btn);
+        }
+      });
+    }
+
+    function renderSelectedRecipes() {
+      selectedContainer.innerHTML = '';
+      recipes
+        .filter(r => selectedRecipeSet.has(r.id))
+        .forEach(r => {
+          const label = document.createElement('label');
+          const cb = document.createElement('input');
+          cb.type = 'checkbox';
+          cb.value = r.id;
+          cb.name = 'selected';
+          label.appendChild(cb);
+          label.appendChild(document.createTextNode(` ${r.name}`));
+          selectedContainer.appendChild(label);
+        });
+    }
+
+    function getColor(recipeId) {
+      const colors = ['#5DADE2', '#58D68D', '#F5B041', '#AF7AC5', '#EC7063', '#52BE80', '#F4D03F', '#85929E'];
+      return colors[recipeId % colors.length];
+    }
+
+    function renderSchedule(schedule) {
+      const rows = {
+        '無鍋具': [],
+        '炒鍋': [],
+        '電鍋': [],
+        '湯鍋': [],
+      };
+
+      schedule.forEach(s => {
+        const tool = s.tool || '無鍋具';
+        rows[tool].push(s);
+      });
+
+      scheduleResult.innerHTML = '';
+
+      Object.entries(rows).forEach(([tool, steps]) => {
+        const row = document.createElement('div');
+        row.className = 'timeline-row';
+
+        const label = document.createElement('div');
+        label.className = 'timeline-label';
+        label.textContent = tool;
+        row.appendChild(label);
+
+        const container = document.createElement('div');
+        container.className = 'step-container';
+
+      steps.forEach(s => {
+        const block = document.createElement('div');
+        const duration = s.end - s.start;
+        block.className = 'step-block';
+        block.style.left = `${s.start * 10}px`;
+        block.style.width = `${duration * 10}px`;
+        block.style.backgroundColor = getColor(s.recipeId);
+        block.innerHTML = `
+          <div>${s.recipeName}</div>
+          <div>${s.stepName} (${duration}分)</div>
+        `;
+        container.appendChild(block);
+      });
+
+
+        row.appendChild(container);
+        scheduleResult.appendChild(row);
+      });
+    }
+
+    document.querySelectorAll('input[name="tools"]').forEach(cb =>
+      cb.addEventListener('change', renderFilteredRecipes)
+    );
+
+    document.getElementById('btnSchedule').addEventListener('click', () => {
+      const tools = getSelectedTools();
+      const selectedIds = Array.from(document.querySelectorAll('input[name="selected"]:checked')).map(i => Number(i.value));
+
+      if (selectedIds.length === 0) {
+        alert('請先從已選料理中勾選要排程的料理');
+        return;
+      }
+
+      const schedule = scheduleRecipes(selectedIds, tools);
+      renderSchedule(schedule);
+    });
+
+    renderFilteredRecipes();
+  </script>
+</body>
+</html>
