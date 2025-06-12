@@ -19,67 +19,81 @@ export function scheduleRecipes(selectedIds, availableTools) {
     if (!recipe) return;
 
     const isPasta = recipe.name.includes('義大利麵');
-    const isCurry = recipe.name.includes('咖哩') && recipe.steps.length >= 2
-                    && recipe.steps[0].name.includes('煮飯')
-                    && recipe.steps[1].name.includes('燉咖哩');
+
+    // 判斷是否為飯類料理（包含「飯」但不包含「炒」）
+    const isRiceDish = recipe.name.includes('飯') && !recipe.name.includes('炒');
 
     if (isPasta) {
-      // 義大利麵邏輯
       const step1 = recipe.steps[0]; // 煮麵
       const step2 = recipe.steps[1]; // 煮醬
+      const step3 = recipe.steps[2]; // 炒麵加醬（如果有）
 
-      const start1 = getToolAvailableTime(step1.tool);
-      const end1 = start1 + step1.time;
+      // 判斷哪個步驟比較長
+      const longerStep = step1.time >= step2.time ? step1 : step2;
+      const shorterStep = step1.time < step2.time ? step1 : step2;
 
-      const start2 = getToolAvailableTime(step2.tool);
-      const end2 = start2 + step2.time;
+      // 取得工具可用時間
+      const longerToolAvailable = getToolAvailableTime(longerStep.tool);
+      const shorterToolAvailable = getToolAvailableTime(shorterStep.tool);
 
-      const syncStart = Math.max(start1, start2);
-      const syncEnd = Math.max(end1, end2);
+      // 長步驟先開始
+      let longerStart = longerToolAvailable;
+      let longerEnd = longerStart + longerStep.time;
 
-      const adjustedEnd1 = syncEnd;
-      const adjustedEnd2 = syncEnd;
+      // 短步驟為了同步結束，開始時間 = 同步結束 - 短步驟時間
+      let shorterStart = longerEnd - shorterStep.time;
 
-      setToolUsage(step1.tool, adjustedEnd1);
-      setToolUsage(step2.tool, adjustedEnd2);
+      if (shorterStart < shorterToolAvailable) {
+        // 短步驟工具還沒空，調整開始時間與結束時間
+        shorterStart = shorterToolAvailable;
+        const adjustedEnd = shorterStart + shorterStep.time;
+        longerStart = adjustedEnd - longerStep.time;
+        longerEnd = adjustedEnd;
+      }
 
+      // 加入長步驟
       schedule.push({
         recipeId: id,
         recipeName: recipe.name,
-        stepName: step1.name,
-        tool: step1.tool,
-        start: syncStart,
-        end: adjustedEnd1
+        stepName: longerStep.name,
+        tool: longerStep.tool,
+        start: longerStart,
+        end: longerEnd
       });
+      setToolUsage(longerStep.tool, longerEnd);
 
+      // 加入短步驟
       schedule.push({
         recipeId: id,
         recipeName: recipe.name,
-        stepName: step2.name,
-        tool: step2.tool,
-        start: syncStart,
-        end: adjustedEnd2
+        stepName: shorterStep.name,
+        tool: shorterStep.tool,
+        start: shorterStart,
+        end: longerEnd
       });
+      setToolUsage(shorterStep.tool, longerEnd);
 
-      const stirAvailable = getToolAvailableTime('炒鍋');
-      const stirStart = Math.max(syncEnd, stirAvailable);
-      const stirEnd = stirStart + 5;
+      // 如果有第三步驟「炒麵加醬」，安排它
+      if (step3) {
+        const step3ToolAvailable = getToolAvailableTime(step3.tool);
+        const step3Start = Math.max(longerEnd, step3ToolAvailable);
+        const step3End = step3Start + step3.time;
 
-      setToolUsage('炒鍋', stirEnd);
+        schedule.push({
+          recipeId: id,
+          recipeName: recipe.name,
+          stepName: step3.name,
+          tool: step3.tool,
+          start: step3Start,
+          end: step3End
+        });
+        setToolUsage(step3.tool, step3End);
+      }
 
-      schedule.push({
-        recipeId: id,
-        recipeName: recipe.name,
-        stepName: '炒麵加醬',
-        tool: '炒鍋',
-        start: stirStart,
-        end: stirEnd
-      });
-
-    } else if (isCurry) {
-      // 咖哩飯平行處理「煮飯」和「燉咖哩」，不強制同步結束時間
+    } else if (isRiceDish) {
+      // 飯類料理排程，平行處理煮飯與主菜，後續依序排
       const cookRiceStep = recipe.steps[0];
-      const cookCurryStep = recipe.steps[1];
+      const mainDishStep = recipe.steps[1];
 
       const riceStart = getToolAvailableTime(cookRiceStep.tool);
       const riceEnd = riceStart + cookRiceStep.time;
@@ -93,19 +107,19 @@ export function scheduleRecipes(selectedIds, availableTools) {
         end: riceEnd
       });
 
-      const curryStart = getToolAvailableTime(cookCurryStep.tool);
-      const curryEnd = curryStart + cookCurryStep.time;
-      setToolUsage(cookCurryStep.tool, curryEnd);
+      const mainStart = getToolAvailableTime(mainDishStep.tool);
+      const mainEnd = mainStart + mainDishStep.time;
+      setToolUsage(mainDishStep.tool, mainEnd);
       schedule.push({
         recipeId: id,
         recipeName: recipe.name,
-        stepName: cookCurryStep.name,
-        tool: cookCurryStep.tool,
-        start: curryStart,
-        end: curryEnd
+        stepName: mainDishStep.name,
+        tool: mainDishStep.tool,
+        start: mainStart,
+        end: mainEnd
       });
 
-      const prevStepsEnd = Math.max(riceEnd, curryEnd);
+      const prevStepsEnd = Math.max(riceEnd, mainEnd);
 
       for (let i = 2; i < recipe.steps.length; i++) {
         const step = recipe.steps[i];
