@@ -2,66 +2,186 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <title>料理排程器</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>料理小幫手</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: sans-serif; padding: 20px; }
-    .section { margin-top: 2em; }
+    body {
+      font-family: "Noto Sans TC", "Helvetica Neue", sans-serif;
+      padding: 40px 20px;
+      background: #f9f9f7;
+      color: #444;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    h1, h2 {
+      color: #333;
+    }
+
+    .section {
+      margin-top: 3em;
+    }
+
+    /* 鍋具按鈕 */
+    .tool-btn {
+      margin: 5px;
+      padding: 8px 16px;
+      border: 1px solid #bbb;
+      background-color: #ffffff;
+      color: #555;
+      cursor: pointer;
+      border-radius: 6px;
+      font-size: 15px;
+      transition: all 0.25s ease;
+      box-shadow: 1px 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .tool-btn.active {
+      background-color: #a4b0be;
+      color: white;
+      font-weight: bold;
+      border-color: #7f8fa6;
+    }
+
+    /* 可做料理按鈕 */
+    #filteredRecipes button {
+      background: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      margin: 5px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: 0.2s;
+    }
+
+    #filteredRecipes button:hover {
+      background: #dff2f2;
+      border-color: #7fbbb3;
+      color: #2d4e4e;
+    }
+
+    /* 已選料理清單 */
+    #selectedRecipes label {
+      display: inline-block;
+      margin: 4px 10px 4px 0;
+      padding: 6px 10px;
+      background: #eee;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    #selectedRecipes input[type="checkbox"] {
+      margin-right: 6px;
+    }
+
+    /* 排程區 */
+    #scheduleResult, #ingredientResult {
+      margin-top: 1em;
+    }
+
     .timeline-row {
       display: flex;
       align-items: center;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
     }
+
     .timeline-label {
       width: 80px;
       font-weight: bold;
+      color: #555;
     }
 
     .step-container {
       flex-grow: 1;
       position: relative;
-      height: 40px; /* 降低高度 */
-      background: #f0f0f0;
-      max-width: calc(100vw - 130px); /* 讓排程區寬度跟隨視窗寬度，左側標籤約80px，再留約50px右邊距 */
-      margin-right: 10px; /* 右邊距，避免貼邊 */
+      height: 40px;
+      background: #eaeaea;
+      max-width: calc(100vw - 130px);
+      border-radius: 6px;
+      overflow: hidden;
     }
 
     .step-block {
       position: absolute;
-      top: 2.5px;  /* 往下移動一點，讓上下有空隙 */
-      height: 30px; /* 縮矮高度 */
-      border-radius: 4px;
-      padding: 3px 6px;
-      font-size: 12px;
-      color: #fff;
-      white-space: normal;
+      top: 4px;
+      height: 32px;
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 13px;
+      color: white;
+      white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      line-height: 1.2em;
+      line-height: 1.4em;
       display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 3px; /* 文字間隙 */
-      /* 移除 margin-right，改用計算 left 保持間隔 */
+      align-items: center;
+      background: #7fbbb3;
+      box-shadow: 1px 2px 4px rgba(0,0,0,0.1);
     }
 
-    label { margin-right: 10px; display: inline-block; }
+    /* 按鈕 */
+    #btnSchedule {
+      padding: 10px 20px;
+      background: #7fbbb3;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s ease;
+      margin-bottom: 0.5em;
+    }
+
+    #btnSchedule:hover {
+      background: #5e9d94;
+    }
+
+    /* 切換按鈕 */
+    .view-tab {
+      margin-right: 8px;
+      padding: 6px 14px;
+      border: 1px solid #aaa;
+      background-color: #fff;
+      cursor: pointer;
+      border-radius: 5px;
+      font-weight: 600;
+      user-select: none;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .active-tab {
+      background-color: #007bff;
+      color: white;
+      border-color: #0056b3;
+    }
+
+    /* 食材清單樣式 */
+    #ingredientResult div {
+      padding: 4px 0;
+      font-size: 15px;
+      color: #333;
+    }
   </style>
 </head>
 <body>
-  <h1>料理排程器</h1>
+  <h1>料理小幫手</h1>
 
   <!-- 選擇鍋具 -->
   <div class="section">
-    <h2>1. 選擇擁有的鍋具</h2>
-    <input type="checkbox" name="tools" value="無鍋具"> 無鍋具
-    <input type="checkbox" name="tools" value="電鍋"> 電鍋
-    <input type="checkbox" name="tools" value="湯鍋"> 湯鍋
-    <input type="checkbox" name="tools" value="炒鍋"> 炒鍋
+    <h2>1. 選擇擁有的鍋具（點擊按鈕切換顯示）</h2>
+    <div id="toolList">
+      <button class="tool-btn" data-tool="無鍋具">無鍋具</button>
+      <button class="tool-btn" data-tool="電鍋">電鍋</button>
+      <button class="tool-btn" data-tool="湯鍋">湯鍋</button>
+      <button class="tool-btn" data-tool="炒鍋">炒鍋</button>
+    </div>
   </div>
 
   <!-- 可選料理 -->
   <div class="section">
-    <h2>2. 可做料理（點擊加入下方清單）</h2>
+    <h2>2. 可做料理（點擊按鈕加入下方清單）</h2>
     <div id="filteredRecipes"></div>
   </div>
 
@@ -73,9 +193,17 @@
 
   <!-- 排程 -->
   <div class="section">
-    <button id="btnSchedule">產生排程</button>
-    <h2>排程結果</h2>
-    <div id="scheduleResult"></div>
+    <button id="btnSchedule">料理!!!</button>
+
+    <div>
+      <button id="tabSchedule" class="view-tab active-tab">料理排程</button>
+      <button id="tabIngredients" class="view-tab">所需食材</button>
+    </div>
+
+    <div id="viewContainer">
+      <div id="scheduleResult"></div>
+      <div id="ingredientResult" style="display:none;"></div>
+    </div>
   </div>
 
   <script type="module">
@@ -85,12 +213,29 @@
     const filteredContainer = document.getElementById('filteredRecipes');
     const selectedContainer = document.getElementById('selectedRecipes');
     const scheduleResult = document.getElementById('scheduleResult');
+    const ingredientResult = document.getElementById('ingredientResult');
+    const toolButtons = document.querySelectorAll('.tool-btn');
 
     let selectedRecipeSet = new Set();
+    let activeTools = new Set();
 
     function getSelectedTools() {
-      return Array.from(document.querySelectorAll('input[name="tools"]:checked')).map(cb => cb.value);
+      return Array.from(activeTools);
     }
+
+    toolButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tool = btn.dataset.tool;
+        if (activeTools.has(tool)) {
+          activeTools.delete(tool);
+          btn.classList.remove('active');
+        } else {
+          activeTools.add(tool);
+          btn.classList.add('active');
+        }
+        renderFilteredRecipes();
+      });
+    });
 
     function getUsedTools(recipe) {
       return recipe.steps.map(s => s.tool).filter(Boolean);
@@ -108,14 +253,19 @@
         const allToolsAvailable =
           (isNoToolNeeded && hasNoToolOption) ||
           (!isNoToolNeeded && toolsNeeded.every(t => tools.includes(t)));
+
         if (allToolsAvailable) {
-          const btn = document.createElement('button');
-          btn.textContent = r.name;
-          btn.onclick = () => {
-            selectedRecipeSet.add(r.id);
-            renderSelectedRecipes();
-          };
-          filteredContainer.appendChild(btn);
+          // 按鈕不能重複加入
+          if (!selectedRecipeSet.has(r.id)) {
+            const btn = document.createElement('button');
+            btn.textContent = r.name;
+            btn.onclick = () => {
+              selectedRecipeSet.add(r.id);
+              renderSelectedRecipes();
+              renderFilteredRecipes(); // 按鈕重新渲染以避免重複
+            };
+            filteredContainer.appendChild(btn);
+          }
         }
       });
     }
@@ -168,10 +318,9 @@
         const container = document.createElement('div');
         container.className = 'step-container';
 
-        const gap = 7; // 區塊間距 px
+        const gap = 7;
         let lastEnd = 0;
 
-        // 確保依開始時間排序，避免邏輯錯亂
         steps.sort((a, b) => a.start - b.start);
 
         steps.forEach(s => {
@@ -179,17 +328,12 @@
           const duration = s.end - s.start;
           block.className = 'step-block';
 
-          // 計算理想的 left
           let leftPos = s.start * 15;
-
-          // 如果前一個區塊結束加間距超過這個起點，往右推
           if (leftPos < lastEnd + gap) {
             leftPos = lastEnd + gap;
           }
-
           block.style.left = `${leftPos}px`;
 
-          // 寬度減掉間距 gap，避免區塊貼齊，且設最小寬度 5px
           let widthPx = duration * 15 - gap;
           if (widthPx < 5) widthPx = 5;
 
@@ -199,21 +343,11 @@
           const recipe = recipes.find(r => r.id === s.recipeId);
           const onlyOneStep = recipe && recipe.steps.length === 1;
 
-          if (onlyOneStep) {
-            block.innerHTML = `
-              <div>${s.recipeName}</div>
-              <div>(${duration}分)</div>
-            `;
-          } else {
-            block.innerHTML = `
-              <div>${s.recipeName}</div>
-              <div>${s.stepName} (${duration}分)</div>
-            `;
-          }
+          block.innerHTML = onlyOneStep
+            ? `<div>${s.recipeName}</div><div>(${duration}分)</div>`
+            : `<div>${s.recipeName}</div><div>${s.stepName} (${duration}分)</div>`;
 
           container.appendChild(block);
-
-          // 更新 lastEnd：左邊起點 + 區塊寬度 + 間距 gap
           lastEnd = leftPos + widthPx + gap;
         });
 
@@ -222,9 +356,40 @@
       });
     }
 
-    document.querySelectorAll('input[name="tools"]').forEach(cb =>
-      cb.addEventListener('change', renderFilteredRecipes)
-    );
+    // 顯示所需食材
+    function renderIngredients(recipeIds) {
+      ingredientResult.innerHTML = '';
+
+      recipeIds.forEach(id => {
+        const recipe = recipes.find(r => r.id === id);
+        if (!recipe) return;
+
+        // 合併 ingredients 與 seasonings，去重複
+        const allIngredients = [...(recipe.ingredients || []), ...(recipe.seasonings || [])];
+        const uniqueList = [...new Set(allIngredients)];
+        const line = document.createElement('div');
+        line.textContent = `${recipe.name}：${uniqueList.join('、')}`;
+        ingredientResult.appendChild(line);
+      });
+    }
+
+    // 切換排程結果 / 所需食材 tab
+    const tabSchedule = document.getElementById('tabSchedule');
+    const tabIngredients = document.getElementById('tabIngredients');
+
+    tabSchedule.addEventListener('click', () => {
+      tabSchedule.classList.add('active-tab');
+      tabIngredients.classList.remove('active-tab');
+      scheduleResult.style.display = '';
+      ingredientResult.style.display = 'none';
+    });
+
+    tabIngredients.addEventListener('click', () => {
+      tabIngredients.classList.add('active-tab');
+      tabSchedule.classList.remove('active-tab');
+      scheduleResult.style.display = 'none';
+      ingredientResult.style.display = '';
+    });
 
     document.getElementById('btnSchedule').addEventListener('click', () => {
       const tools = getSelectedTools();
@@ -236,23 +401,20 @@
       }
 
       const schedule = scheduleRecipes(selectedIds, tools);
+      const latest = Math.max(...schedule.map(s => s.end));
 
-      // 找最大結束時間
-      let maxEnd = 0;
-      schedule.forEach(s => {
-        if (s.end > maxEnd) maxEnd = s.end;
-      });
-
-      if (maxEnd > 120) {
+      if (latest > 120) {
         alert('哪有人煮晚餐超過兩個小時!!!');
-        return; // 超過兩小時就不繪製排程
+        return;
       }
 
       renderSchedule(schedule);
+      renderIngredients(selectedIds); // 顯示所需食材
     });
 
-
+    // 初始渲染
     renderFilteredRecipes();
+    renderSelectedRecipes();
   </script>
 </body>
 </html>

@@ -110,7 +110,7 @@ export const recipes = [
   {
     id: 12,
     name: "白飯",
-    main_ingredients: ["白米"],
+    main_ingredients: ["白飯"],
     seasonings: [],
     steps: [
       { name: "煮飯", tool: "電鍋", time: 40 }

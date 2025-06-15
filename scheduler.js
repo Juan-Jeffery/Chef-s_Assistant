@@ -28,30 +28,24 @@ export function scheduleRecipes(selectedIds, availableTools) {
       const step2 = recipe.steps[1]; // 煮醬
       const step3 = recipe.steps[2]; // 炒麵加醬（如果有）
 
-      // 判斷哪個步驟比較長
       const longerStep = step1.time >= step2.time ? step1 : step2;
       const shorterStep = step1.time < step2.time ? step1 : step2;
 
-      // 取得工具可用時間
       const longerToolAvailable = getToolAvailableTime(longerStep.tool);
       const shorterToolAvailable = getToolAvailableTime(shorterStep.tool);
 
-      // 長步驟先開始
       let longerStart = longerToolAvailable;
       let longerEnd = longerStart + longerStep.time;
 
-      // 短步驟為了同步結束，開始時間 = 同步結束 - 短步驟時間
       let shorterStart = longerEnd - shorterStep.time;
 
       if (shorterStart < shorterToolAvailable) {
-        // 短步驟工具還沒空，調整開始時間與結束時間
         shorterStart = shorterToolAvailable;
         const adjustedEnd = shorterStart + shorterStep.time;
         longerStart = adjustedEnd - longerStep.time;
         longerEnd = adjustedEnd;
       }
 
-      // 加入長步驟
       schedule.push({
         recipeId: id,
         recipeName: recipe.name,
@@ -62,7 +56,6 @@ export function scheduleRecipes(selectedIds, availableTools) {
       });
       setToolUsage(longerStep.tool, longerEnd);
 
-      // 加入短步驟
       schedule.push({
         recipeId: id,
         recipeName: recipe.name,
@@ -73,7 +66,6 @@ export function scheduleRecipes(selectedIds, availableTools) {
       });
       setToolUsage(shorterStep.tool, longerEnd);
 
-      // 如果有第三步驟「炒麵加醬」，安排它
       if (step3) {
         const step3ToolAvailable = getToolAvailableTime(step3.tool);
         const step3Start = Math.max(longerEnd, step3ToolAvailable);
@@ -91,9 +83,9 @@ export function scheduleRecipes(selectedIds, availableTools) {
       }
 
     } else if (isRiceDish) {
-      // 飯類料理排程，平行處理煮飯與主菜，後續依序排
+      // 飯類料理排程（改為主菜步驟可選）
       const cookRiceStep = recipe.steps[0];
-      const mainDishStep = recipe.steps[1];
+      const mainDishStep = recipe.steps[1] || null;
 
       const riceStart = getToolAvailableTime(cookRiceStep.tool);
       const riceEnd = riceStart + cookRiceStep.time;
@@ -107,19 +99,22 @@ export function scheduleRecipes(selectedIds, availableTools) {
         end: riceEnd
       });
 
-      const mainStart = getToolAvailableTime(mainDishStep.tool);
-      const mainEnd = mainStart + mainDishStep.time;
-      setToolUsage(mainDishStep.tool, mainEnd);
-      schedule.push({
-        recipeId: id,
-        recipeName: recipe.name,
-        stepName: mainDishStep.name,
-        tool: mainDishStep.tool,
-        start: mainStart,
-        end: mainEnd
-      });
+      let prevStepsEnd = riceEnd;
 
-      const prevStepsEnd = Math.max(riceEnd, mainEnd);
+      if (mainDishStep) {
+        const mainStart = getToolAvailableTime(mainDishStep.tool);
+        const mainEnd = mainStart + mainDishStep.time;
+        setToolUsage(mainDishStep.tool, mainEnd);
+        schedule.push({
+          recipeId: id,
+          recipeName: recipe.name,
+          stepName: mainDishStep.name,
+          tool: mainDishStep.tool,
+          start: mainStart,
+          end: mainEnd
+        });
+        prevStepsEnd = Math.max(riceEnd, mainEnd);
+      }
 
       for (let i = 2; i < recipe.steps.length; i++) {
         const step = recipe.steps[i];
