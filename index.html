@@ -53,6 +53,7 @@
   <!-- 選擇鍋具 -->
   <div class="section">
     <h2>1. 選擇擁有的鍋具</h2>
+    <input type="checkbox" name="tools" value="無鍋具"> 無鍋具
     <input type="checkbox" name="tools" value="電鍋"> 電鍋
     <input type="checkbox" name="tools" value="湯鍋"> 湯鍋
     <input type="checkbox" name="tools" value="炒鍋"> 炒鍋
@@ -101,7 +102,12 @@
 
       recipes.forEach(r => {
         const toolsNeeded = getUsedTools(r);
-        const allToolsAvailable = toolsNeeded.every(t => tools.includes(t));
+        const isNoToolNeeded = toolsNeeded.length === 0;
+        const hasNoToolOption = tools.includes('無鍋具');
+
+        const allToolsAvailable =
+          (isNoToolNeeded && hasNoToolOption) ||
+          (!isNoToolNeeded && toolsNeeded.every(t => tools.includes(t)));
         if (allToolsAvailable) {
           const btn = document.createElement('button');
           btn.textContent = r.name;
