@@ -29,6 +29,15 @@
       gap: 20px;
     }
 
+    /* 「選擇炊具」區不要框線 */
+    #toolSelector {
+      border: none;
+      box-shadow: none;
+      background-color: transparent;
+      padding: 0;
+      margin: 0;
+    }
+
     /* 框線卡片 */
     .card {
       padding: 15px;
@@ -218,9 +227,9 @@
   <!-- 左右排容器 -->
   <div class="flex-group section">
     <!-- 炊具選擇 -->
-    <div class="card">
+    <div class="toolSelector">
       <h2>選擇炊具</h2>
-      <div id="toolList">
+      <div id="">
         <button class="tool-btn" data-tool="無鍋具">無鍋具</button>
         <button class="tool-btn" data-tool="電鍋">電鍋</button>
         <button class="tool-btn" data-tool="湯鍋">湯鍋</button>

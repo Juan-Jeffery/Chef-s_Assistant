@@ -19,11 +19,11 @@ export function scheduleRecipes(selectedIds, availableTools) {
     if (!recipe) return;
 
     const isPasta = recipe.name.includes('義大利麵');
-
-    // 判斷是否為飯類料理（包含「飯」但不包含「炒」）
+    const isStirFriedDish = recipe.name.includes('炒') && (recipe.name.includes('飯') || recipe.name.includes('麵'));
     const isRiceDish = recipe.name.includes('飯') && !recipe.name.includes('炒');
 
     if (isPasta) {
+      // 義大利麵特殊雙步驟平行排程（煮麵＋煮醬）
       const step1 = recipe.steps[0]; // 煮麵
       const step2 = recipe.steps[1]; // 煮醬
       const step3 = recipe.steps[2]; // 炒麵加醬（如果有）
@@ -82,8 +82,34 @@ export function scheduleRecipes(selectedIds, availableTools) {
         setToolUsage(step3.tool, step3End);
       }
 
+    } else if (isStirFriedDish) {
+      // 炒飯、炒麵、炒泡麵等炒類飯麵料理，用彈性排程（跟炒泡麵一樣）
+      recipe.steps.forEach((step) => {
+        let start = 0;
+
+        if (step.dependsOn !== undefined) {
+          const prevStep = recipe.steps[step.dependsOn];
+          start = schedule.find(s => s.recipeId === id && s.stepName === prevStep.name)?.end || 0;
+        }
+
+        const toolAvailable = getToolAvailableTime(step.tool);
+        const stepStart = Math.max(start, toolAvailable);
+        const stepEnd = stepStart + step.time;
+
+        setToolUsage(step.tool, stepEnd);
+
+        schedule.push({
+          recipeId: id,
+          recipeName: recipe.name,
+          stepName: step.name,
+          tool: step.tool,
+          start: stepStart,
+          end: stepEnd
+        });
+      });
+
     } else if (isRiceDish) {
-      // 飯類料理排程（改為主菜步驟可選）
+      // 其他飯類料理排程（不炒飯）
       const cookRiceStep = recipe.steps[0];
       const mainDishStep = recipe.steps[1] || null;
 

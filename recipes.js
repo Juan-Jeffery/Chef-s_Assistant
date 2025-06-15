@@ -1,13 +1,12 @@
 export const recipes = [
-  {
+    {
     id: 1,
-    name: "蛋炒飯",
-    category: "主食",
-    main_ingredients: ["雞蛋", "白飯", "蔥"],
-    seasonings: ["醬油", "鹽"],
+    name: "炒高麗菜",
+    category: "配菜",
+    main_ingredients: ["高麗菜", "蒜頭"],
+    seasonings: ["鹽", "油"],
     steps: [
-      { name: "煮飯", tool: "電鍋", time: 40 },
-      { name: "炒飯", tool: "炒鍋", time: 10, dependsOn: 0 }
+      { name: "炒菜", tool: "炒鍋", time: 10 }
     ]
   },
   {
@@ -45,12 +44,13 @@ export const recipes = [
   },
   {
     id: 5,
-    name: "炒高麗菜",
-    category: "配菜",
-    main_ingredients: ["高麗菜", "蒜頭"],
-    seasonings: ["鹽", "油"],
+    name: "蛋炒飯",
+    category: "主食",
+    main_ingredients: ["雞蛋", "白飯", "蔥"],
+    seasonings: ["醬油", "鹽"],
     steps: [
-      { name: "炒菜", tool: "炒鍋", time: 10 }
+      { name: "煮飯", tool: "電鍋", time: 40 },
+      { name: "炒飯", tool: "炒鍋", time: 10, dependsOn: 0 }
     ]
   },
   {
