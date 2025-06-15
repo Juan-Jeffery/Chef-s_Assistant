@@ -483,6 +483,14 @@
         alert('請先從已選料理中勾選要排程的料理');
         return;
       }
+      // 新增判斷：飯與麵種類數量
+      const selectedRecipes = recipes.filter(r => selectedIds.includes(r.id));
+      const riceCount = selectedRecipes.filter(r => r.category === '主食').length;
+
+      if ((riceCount) > 1) {
+        alert('吃太多澱粉了!!! 請重新選擇。');
+        return;
+      }
 
       const schedule = scheduleRecipes(selectedIds, tools);
       const maxEnd = Math.max(...schedule.map(s => s.end));
