@@ -14,12 +14,31 @@
       max-width: 900px;
       margin: auto;
     }
+
     h1, h2 {
       color: #333;
     }
+
     .section {
       margin-top: 3em;
     }
+
+    /* 新增：左右排容器 */
+    .flex-group {
+      display: flex;
+      gap: 20px;
+    }
+
+    /* 框線卡片 */
+    .card {
+      padding: 15px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      flex: 1;
+    }
+
     /* 鍋具按鈕 */
     .tool-btn {
       margin: 5px;
@@ -40,6 +59,7 @@
       font-weight: bold;
       border-color: #7f8fa6;
     }
+
     /* 可做料理按鈕 */
     #filteredRecipes button {
       background: #fff;
@@ -57,6 +77,7 @@
       border-color: #7fbbb3;
       color: #2d4e4e;
     }
+
     /* 已選料理清單 */
     #selectedRecipes label {
       display: inline-block;
@@ -72,6 +93,7 @@
       margin-right: 6px;
       cursor: pointer;
     }
+
     /* 切換按鈕 */
     .view-tab {
       margin-right: 8px;
@@ -93,6 +115,7 @@
       color: white;
       border-color: #0056b3;
     }
+
     /* 結果區框框 */
     #resultWrapper {
       margin-top: 1em;
@@ -103,21 +126,25 @@
       box-shadow: 0 0 10px rgba(0,0,0,0.05);
       max-width: 100%;
     }
+
     /* 排程區 */
     #scheduleResult, #ingredientResult {
       margin-top: 10px;
     }
+
     .timeline-row {
       display: flex;
       align-items: center;
       margin-bottom: 15px;
     }
+
     .timeline-label {
       width: 80px;
       font-weight: bold;
       color: #555;
       flex-shrink: 0;
     }
+
     .step-container {
       flex-grow: 1;
       position: relative;
@@ -127,6 +154,7 @@
       border-radius: 6px;
       overflow: hidden;
     }
+
     .step-block {
       position: absolute;
       top: 4px;
@@ -144,6 +172,7 @@
       background: #7fbbb3;
       box-shadow: 1px 2px 4px rgba(0,0,0,0.1);
     }
+
     /* 按鈕 */
     #btnSchedule {
       padding: 10px 20px;
@@ -160,37 +189,55 @@
     #btnSchedule:hover {
       background: #5e9d94;
     }
+
+    /* 分隔線 */
+    #btnSchedule + div {
+      border-top: 1px solid #ccc;
+      margin-top: 1em;
+      padding-top: 1em;
+    }
+
     /* 食材清單樣式 */
     #ingredientResult div {
       padding: 4px 0;
       font-size: 15px;
       color: #333;
     }
+
+    /* 響應式設計：手機版上下排 */
+    @media (max-width: 768px) {
+      .flex-group {
+        flex-direction: column;
+      }
+    }
   </style>
 </head>
 <body>
   <h1>料理小幫手</h1>
 
-  <!-- 選擇鍋具 -->
-  <div class="section">
-    <h2>1. 選擇擁有的鍋具（點擊按鈕切換顯示）</h2>
-    <div id="toolList">
-      <button class="tool-btn" data-tool="無鍋具">無鍋具</button>
-      <button class="tool-btn" data-tool="電鍋">電鍋</button>
-      <button class="tool-btn" data-tool="湯鍋">湯鍋</button>
-      <button class="tool-btn" data-tool="炒鍋">炒鍋</button>
+  <!-- 左右排容器 -->
+  <div class="flex-group section">
+    <!-- 炊具選擇 -->
+    <div class="card">
+      <h2>選擇炊具</h2>
+      <div id="toolList">
+        <button class="tool-btn" data-tool="無鍋具">無鍋具</button>
+        <button class="tool-btn" data-tool="電鍋">電鍋</button>
+        <button class="tool-btn" data-tool="湯鍋">湯鍋</button>
+        <button class="tool-btn" data-tool="炒鍋">炒鍋</button>
+      </div>
     </div>
-  </div>
 
-  <!-- 可選料理 -->
-  <div class="section">
-    <h2>2. 可做料理（點擊按鈕加入下方清單）</h2>
-    <div id="filteredRecipes"></div>
+    <!-- 可做料理（加框線） -->
+    <div class="card">
+      <h2>可做料理</h2>
+      <div id="filteredRecipes"></div>
+    </div>
   </div>
 
   <!-- 已選料理 -->
   <div class="section">
-    <h2>3. 所選料理（勾選欲排程項目）</h2>
+    <h2>所選料理</h2>
     <div id="selectedRecipes"></div>
   </div>
 
@@ -204,7 +251,7 @@
       <button id="tabIngredients" class="view-tab" disabled>所需食材</button>
     </div>
 
-    <!-- 結果包裝框 -->
+    <!-- 結果區 -->
     <div id="resultWrapper" style="display:none;">
       <div id="scheduleResult"></div>
       <div id="ingredientResult" style="display:none;"></div>
