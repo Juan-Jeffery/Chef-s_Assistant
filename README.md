@@ -37,5 +37,4 @@ my-recipe-app/
 
 - Ingredient summary tab.  
 - Visual cooking timeline.  
-- Smart filters for starch-based dishes (e.g., rice, noodles).  
 
