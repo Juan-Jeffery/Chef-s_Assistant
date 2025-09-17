@@ -9,10 +9,9 @@ A lightweight web app that simplifies meal planning and cooking. With **Cooking 
 ## 📂 Project Structure
 ```bash
 my-recipe-app/
-├── server.js
-├── package.json
-├── public/
-│ └── index.html
+├── index.html # Main entry page
+├── recipes.js # Recipe definitions (fixed fried rice issue)
+├── scheduler.js # Cooking scheduler logic
 ```
 
 ---
