@@ -1,6 +1,4 @@
-🍳 Chef-s_Assistant
-
-# 🍳 Cooking Helper
+# 🍳 Chef-s_Assistant
 
 [Demo Site](https://juan-jeffery.github.io/Chef-s_Assistant/)
 
