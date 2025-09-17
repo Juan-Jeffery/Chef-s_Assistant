@@ -9,13 +9,13 @@ A lightweight web app that simplifies meal planning and cooking. With **Cooking 
 ---
 
 ## 📂 Project Structure
-
+```bash
 my-recipe-app/
 ├── server.js
 ├── package.json
 ├── public/
 │ └── index.html
-
+```
 
 ---
 
