@@ -6,7 +6,7 @@ A lightweight web app that simplifies meal planning and cooking. With **Cooking 
 
 ---
 
-## 📂 Project Structure
+## 📂 Project Structure 
 ```bash
 my-recipe-app/
 ├── index.html # Main entry page
