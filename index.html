@@ -59,7 +59,7 @@
 
     /* 精緻細節輸出樣式 */
     .detail-card { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 15px; border: 1px solid #eee; }
-    .detail-title { font-size: 1.2rem; font-weight: 900; color: var(--active-blue); font-family: 'Noto Serif TC', serif; margin-bottom: 10px; }
+    .detail-title { font-size: 1.2rem; font-weight: 900; color: var(--active-blue); font-family: 'Noto Serif TC', sans-serif; margin-bottom: 10px; }
     .detail-body { line-height: 1.6; font-size: 0.95rem; color: #444; }
     .ing-tag { display: inline-block; background: #eef2f3; padding: 2px 8px; border-radius: 4px; margin: 2px; font-size: 0.85rem; color: #666; }
 
@@ -98,7 +98,7 @@
 <div class="container">
   <header style="margin-bottom: 40px; text-align: center;">
     <h1>Chef-s Assistant</h1>
-    <p style="font-weight: 600; color: #666;">智慧排程 · 精緻宴席</p>
+    <p style="font-weight: 600; color: #666;">智慧排程 · 精緻餐點</p>
   </header>
 
   <div class="dashboard-grid">
@@ -141,13 +141,13 @@
   </div>
 
   <div class="export-footer">
-    <button id="btnExportMenu" class="main-action-btn">今日宴席 匯出</button>
+    <button id="btnExportMenu" class="main-action-btn">今日餐點 匯出</button>
   </div>
 </div>
 
 <div id="menuOverlay">
   <div id="menuContent" onclick="event.stopPropagation()">
-    <div class="menu-title">今日宴席</div>
+    <div class="menu-title">今日餐點</div>
     <div id="menuDishes"></div>
     <div class="menu-footer">來自 Chef-s Assistant</div>
   </div>
@@ -276,11 +276,11 @@
       ingCard.className = 'detail-card';
       const mainIngs = r.main_ingredients.map(ing => `<span class="ing-tag" style="background:#dff9fb; color:#130f40;">${ing}</span>`).join('');
       const seasonings = r.seasonings.map(s => `<span class="ing-tag">${s}</span>`).join('');
-      ingCard.innerHTML = `<div class="detail-title">🍴 ${r.name}</div><div class="detail-body"><strong>主要食材：</strong><br>${mainIngs}<br><strong>調味料：</strong><br>${seasonings}</div>`;
+      ingCard.innerHTML = `<div class="detail-title"> ${r.name}</div><div class="detail-body"><strong>主要食材：</strong><br>${mainIngs}<br><strong>調味料：</strong><br>${seasonings}</div>`;
       els.ingredientBox.appendChild(ingCard);
       const methodCard = document.createElement('div');
       methodCard.className = 'detail-card';
-      methodCard.innerHTML = `<div class="detail-title">🍳 ${r.name} 料理要點</div><div class="detail-body">${r.description}</div>`;
+      methodCard.innerHTML = `<div class="detail-title"> ${r.name} </div><div class="detail-body">${r.description}</div>`;
       els.methodBox.appendChild(methodCard);
     });
   }
