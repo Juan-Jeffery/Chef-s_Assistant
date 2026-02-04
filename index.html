@@ -12,18 +12,21 @@
       --card-bg: #ffffff;
       --text-main: #2d3436;
       --active-blue: #3498db;
-      /* 廚具專屬色 (淺色系) */
       --color-none: #f1f2f6;
       --color-rice: #fff4e6;
       --color-soup: #e3f2fd;
       --color-fry: #e8f5e9;
     }
 
-    /* 基礎重設 */
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
       font-family: 'Inter', "Noto Sans TC", sans-serif;
       background-color: var(--bg-color);
+      /* 加入淡淡的食材背景圖 */
+      background-image: linear-gradient(rgba(244, 247, 246, 0.85), rgba(244, 247, 246, 0.85)), 
+                        url('https://images.unsplash.com/photo-1506368249639-73a05d6f6488?auto=format&fit=crop&q=80&w=1000');
+      background-size: cover;
+      background-attachment: fixed;
       color: var(--text-main);
       margin: 0;
       padding: 15px;
@@ -32,52 +35,76 @@
     .container { max-width: 1000px; margin: 0 auto; }
     header { text-align: center; margin-bottom: 25px; }
     h1 { font-size: 1.8rem; margin: 0; }
-    header p { font-size: 0.9rem; color: #666; }
 
     .dashboard-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 15px; }
-    .card { background: var(--card-bg); border-radius: 12px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 15px; }
+    .card { 
+      background: rgba(255, 255, 255, 0.9); /* 稍微透明讓底圖透出來 */
+      backdrop-filter: blur(5px);
+      border-radius: 12px; 
+      padding: 15px; 
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+      margin-bottom: 15px; 
+    }
+    
     h2 { font-size: 1rem; border-left: 4px solid var(--primary); padding-left: 10px; margin-top: 0; margin-bottom: 15px; }
 
-    /* 鍋具按鈕 */
+    /* 廚具按鈕樣式 */
     .tool-group { display: flex; flex-wrap: wrap; gap: 8px; }
     .tool-btn {
-      padding: 10px 16px; border: 1px solid #ddd; background: white; border-radius: 25px;
-      cursor: pointer; font-size: 0.9rem; transition: 0.2s;
+      padding: 10px 18px; border: 1px solid #ddd; background: white; border-radius: 25px;
+      cursor: pointer; font-size: 0.9rem; transition: 0.3s; font-weight: 600; color: #666;
     }
-    .tool-btn.active { background: var(--primary); color: white; border-color: var(--primary); font-weight: bold; }
+    .tool-btn.active[data-tool="無鍋具"] { background: var(--color-none); border-color: #ccc; }
+    .tool-btn.active[data-tool="電鍋"] { background: var(--color-rice); border-color: #ffd8a8; }
+    .tool-btn.active[data-tool="湯鍋"] { background: var(--color-soup); border-color: #a5d8ff; }
+    .tool-btn.active[data-tool="炒鍋"] { background: var(--color-fry); border-color: #b2f2bb; }
 
-    /* 食譜按鈕與漸層樣式 */
+    /* 料理標籤 */
     #filteredRecipes { display: flex; flex-wrap: wrap; gap: 8px; }
     .recipe-chip {
       padding: 10px 14px; border: 2.5px solid transparent; 
       border-radius: 10px; cursor: pointer; font-size: 0.85rem; 
       transition: all 0.2s ease; font-weight: 600; color: #444;
     }
-    
-    /* 選中時的藍色粗框 */
     .recipe-chip.active-recipe {
       border-color: var(--active-blue) !important;
       box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
-      transform: translateY(-2px);
     }
 
-    /* 已選料理標籤 */
+    /* 待煮清單 */
     .selected-tag {
       display: inline-flex; align-items: center; 
-      padding: 8px 14px; border-radius: 25px; margin: 4px; font-size: 0.85rem;
-      border: 1px solid rgba(0,0,0,0.1); font-weight: 600;
+      padding: 8px 16px; border-radius: 25px; margin: 4px; font-size: 0.85rem;
+      border: 1px solid rgba(0,0,0,0.05); font-weight: 600; cursor: pointer;
     }
-    .selected-tag input { margin-right: 8px; width: 16px; height: 16px; cursor: pointer; }
+    .selected-tag::after { content: '×'; margin-left: 8px; font-size: 1rem; color: #999; }
 
-    /* 排程時間軸 */
+    /* 食材清單特別樣式 */
+    .ingredient-item {
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      flex-direction: column;
+    }
+    .ingredient-recipe-name {
+      font-weight: bold;
+      color: var(--active-blue);
+      margin-bottom: 5px;
+    }
+    .ingredient-details {
+      color: #555;
+      font-size: 0.9rem;
+    }
+
+    /* 時間軸 */
     .timeline-container-wrapper { overflow-x: auto; padding-bottom: 10px; }
     .timeline-row { display: flex; align-items: center; margin-bottom: 12px; min-width: 600px; }
     .timeline-label { width: 70px; font-size: 0.8rem; font-weight: bold; color: #666; }
-    .step-container { flex-grow: 1; position: relative; height: 44px; background: #eee; border-radius: 8px; }
+    .step-container { flex-grow: 1; position: relative; height: 44px; background: rgba(0,0,0,0.05); border-radius: 8px; }
     .step-block {
       position: absolute; top: 6px; height: 32px; border-radius: 6px; padding: 0 10px;
       font-size: 11px; color: white; display: flex; align-items: center; white-space: nowrap;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-weight: 600;
+      font-weight: 600;
     }
 
     .tabs { display: flex; gap: 5px; margin-top: 15px; }
@@ -87,9 +114,7 @@
     .main-action-btn {
       width: 100%; padding: 16px; background: var(--primary); color: white;
       border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; margin-top: 10px; cursor: pointer;
-      transition: background 0.3s;
     }
-    .main-action-btn:hover { background: #5e9d94; }
 
     @media (max-width: 768px) { .dashboard-grid { grid-template-columns: 1fr; } }
   </style>
@@ -103,7 +128,7 @@
   </header>
 
   <div class="dashboard-grid">
-    <div class="sidebar">
+    <div>
       <div class="card">
         <h2>1. 選擇廚具</h2>
         <div class="tool-group">
@@ -114,14 +139,14 @@
         </div>
       </div>
       <div class="card">
-        <h2>2. 可做料理 (顏色代表所需廚具)</h2>
+        <h2>2. 可做料理</h2>
         <div id="filteredRecipes"></div>
       </div>
     </div>
 
-    <div class="main-content">
+    <div>
       <div class="card">
-        <h2>3. 待煮清單</h2>
+        <h2>3. 待煮清單 (點選取消)</h2>
         <div id="selectedRecipes"></div>
         <button id="btnSchedule" class="main-action-btn">開始計算排程</button>
       </div>
@@ -129,10 +154,10 @@
       <div id="resultWrapper" style="display:none;">
         <div class="tabs">
           <button id="tabSchedule" class="tab-btn active">時間軸</button>
-          <button id="tabIngredients" class="tab-btn">食材清單</button>
+          <button id="tabIngredients" class="tab-btn">食材明細</button>
         </div>
-        <div class="card" style="border-radius: 0 0 12px 12px; border-top:none;">
-          <div id="scheduleResult" class="timeline-container-wrapper"></div>
+        <div class="card" style="border-radius: 0 0 12px 12px; border-top:none; padding:0;">
+          <div id="scheduleResult" class="timeline-container-wrapper" style="padding: 15px;"></div>
           <div id="ingredientResult" style="display:none;"></div>
         </div>
       </div>
@@ -145,15 +170,7 @@
   import { scheduleRecipes } from './scheduler.js';
 
   const state = { activeTools: new Set(), selectedRecipeIds: new Set() };
-  
-  // 顏色映射配置
-  const toolColors = {
-    '無鍋具': '#f1f2f6',
-    '電鍋': '#fff4e6',
-    '湯鍋': '#e3f2fd',
-    '炒鍋': '#e8f5e9'
-  };
-
+  const toolColors = { '無鍋具': '#f1f2f6', '電鍋': '#fff4e6', '湯鍋': '#e3f2fd', '炒鍋': '#e8f5e9' };
   const els = {
     toolBtns: document.querySelectorAll('.tool-btn'),
     filteredBox: document.getElementById('filteredRecipes'),
@@ -166,10 +183,8 @@
     tabIngredients: document.getElementById('tabIngredients')
   };
 
-  // 初始運行
   updateFiltered();
 
-  // 廚具按鈕監聽
   els.toolBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       const t = btn.dataset.tool;
@@ -179,93 +194,72 @@
     });
   });
 
-  // 計算料理背景色 (單色或漸層)
   function getRecipeBackground(recipe) {
-    const toolsNeeded = [...new Set(recipe.steps.map(s => s.tool || '無鍋具'))];
-    if (toolsNeeded.length === 1) {
-      return toolColors[toolsNeeded[0]];
-    } else {
-      const colors = toolsNeeded.map(t => toolColors[t]);
-      return `linear-gradient(135deg, ${colors.join(', ')})`;
-    }
+    const tools = [...new Set(recipe.steps.map(s => s.tool || '無鍋具'))];
+    if (tools.length === 1) return toolColors[tools[0]];
+    return `linear-gradient(135deg, ${tools.map(t => toolColors[t]).join(', ')})`;
   }
 
-  // 更新料理清單
   function updateFiltered() {
     const tools = Array.from(state.activeTools);
     els.filteredBox.innerHTML = '';
-    
     const available = recipes.filter(r => {
       const needed = r.steps.map(s => s.tool).filter(Boolean);
       if (needed.length === 0) return state.activeTools.has('無鍋具');
       return needed.every(t => tools.includes(t));
     });
 
-    if (available.length === 0) {
-      els.filteredBox.innerHTML = '<p style="color:#999; font-size:0.8rem;">選個鍋具吧！</p>';
-      return;
-    }
-
     available.forEach(r => {
       const btn = document.createElement('button');
       const isSelected = state.selectedRecipeIds.has(r.id);
-      
       btn.className = isSelected ? 'recipe-chip active-recipe' : 'recipe-chip';
       btn.textContent = isSelected ? `✓ ${r.name}` : `+ ${r.name}`;
       btn.style.background = getRecipeBackground(r);
-      
-      btn.onclick = () => toggleRecipe(r);
+      btn.onclick = () => {
+        if (state.selectedRecipeIds.has(r.id)) state.selectedRecipeIds.delete(r.id);
+        else {
+          const cur = recipes.filter(i => state.selectedRecipeIds.has(i.id));
+          if (r.category === '主食' && cur.some(i => i.category === '主食')) return alert('⚠️ 澱粉超標警告！');
+          state.selectedRecipeIds.add(r.id);
+        }
+        updateFiltered(); renderSelected();
+      };
       els.filteredBox.appendChild(btn);
     });
   }
 
-  // 切換選取狀態
-  function toggleRecipe(recipe) {
-    if (state.selectedRecipeIds.has(recipe.id)) {
-      state.selectedRecipeIds.delete(recipe.id);
-    } else {
-      const currentList = recipes.filter(i => state.selectedRecipeIds.has(i.id));
-      if (recipe.category === '主食' && currentList.some(i => i.category === '主食')) {
-        alert('⚠️ 澱粉超標警告！');
-        return;
-      }
-      state.selectedRecipeIds.add(recipe.id);
-    }
-    updateFiltered();
-    renderSelected();
-  }
-
-  // 渲染待煮清單
   function renderSelected() {
     els.selectedBox.innerHTML = '';
-    if (state.selectedRecipeIds.size === 0) {
-      els.selectedBox.innerHTML = '<p style="color:#999; font-size:0.8rem;">尚未選菜</p>';
-      return;
-    }
     state.selectedRecipeIds.forEach(id => {
       const r = recipes.find(i => i.id === id);
       const tag = document.createElement('div');
       tag.className = 'selected-tag';
       tag.style.background = getRecipeBackground(r);
-      
-      tag.innerHTML = `<input type="checkbox" checked value="${r.id}" class="sync-check"> ${r.name}`;
-      
-      tag.querySelector('.sync-check').addEventListener('change', (e) => {
-        if (!e.target.checked) {
-          state.selectedRecipeIds.delete(r.id);
-          updateFiltered();
-          renderSelected();
-        }
-      });
+      tag.textContent = r.name;
+      tag.onclick = () => { state.selectedRecipeIds.delete(r.id); updateFiltered(); renderSelected(); };
       els.selectedBox.appendChild(tag);
     });
   }
 
-  // 排程計算
+  function renderIngredients(ids) {
+    els.ingredientBox.innerHTML = '';
+    ids.forEach(id => {
+      const r = recipes.find(i => i.id === id);
+      const item = document.createElement('div');
+      item.className = 'ingredient-item';
+      
+      const allIng = [...(r.main_ingredients || []), ...(r.seasonings || [])];
+      item.innerHTML = `
+        <div class="ingredient-recipe-name">${r.name}</div>
+        <div class="ingredient-details">${allIng.join('、')}</div>
+      `;
+      els.ingredientBox.appendChild(item);
+    });
+  }
+
   els.btnSchedule.addEventListener('click', () => {
     const checkedIds = Array.from(state.selectedRecipeIds);
-    if (checkedIds.length === 0) return alert('請選擇要煮的料理');
-    
+    if (checkedIds.length === 0) return alert('請選擇料理');
     const schedule = scheduleRecipes(checkedIds, Array.from(state.activeTools));
     els.resultWrapper.style.display = 'block';
     renderTimeline(schedule);
@@ -273,22 +267,16 @@
     els.tabSchedule.click();
   });
 
-  // 繪製時間軸
   function renderTimeline(schedule) {
     const rows = { '無鍋具': [], '炒鍋': [], '電鍋': [], '湯鍋': [] };
     schedule.forEach(s => rows[s.tool || '無鍋具'].push(s));
     els.scheduleBox.innerHTML = '';
-    
-    // 時間軸區塊顏色 (使用稍微亮一點的顏色)
-    const blockColors = ['#7fbbb3', '#3498db', '#45b7af', '#e67e22', '#9b59b6', '#2ecc71'];
-    
+    const blockColors = ['#7fbbb3', '#3498db', '#45b7af', '#e67e22', '#9b59b6'];
     Object.entries(rows).forEach(([tool, steps]) => {
       if (steps.length === 0) return;
       const row = document.createElement('div');
       row.className = 'timeline-row';
       row.innerHTML = `<div class="timeline-label">${tool}</div><div class="step-container"></div>`;
-      const container = row.querySelector('.step-container');
-      
       steps.forEach(s => {
         const block = document.createElement('div');
         block.className = 'step-block';
@@ -296,31 +284,15 @@
         block.style.width = `${(s.end - s.start) * 10 - 2}px`;
         block.style.backgroundColor = blockColors[s.recipeId % blockColors.length];
         block.innerHTML = `<span>${s.recipeName}</span>`;
-        container.appendChild(block);
+        row.querySelector('.step-container').appendChild(block);
       });
       els.scheduleBox.appendChild(row);
     });
   }
 
-  // 渲染食材清單
-  function renderIngredients(ids) {
-    const summary = {};
-    ids.forEach(id => {
-      const r = recipes.find(i => i.id === id);
-      [...(r.main_ingredients || []), ...(r.seasonings || [])].forEach(ing => {
-        summary[ing] = (summary[ing] || 0) + 1;
-      });
-    });
-    
-    els.ingredientBox.innerHTML = `<h3>🛒 食材清單</h3><ul style="padding-left: 20px;">` + 
-      Object.entries(summary).map(([n, c]) => `<li>${n} ${c > 1 ? `<span style="color:#e67e22">(x${c})</span>` : ''}</li>`).join('') + `</ul>`;
-  }
-
-  // Tab 切換
   [els.tabSchedule, els.tabIngredients].forEach(btn => {
     btn.addEventListener('click', (e) => {
-      els.tabSchedule.classList.remove('active'); 
-      els.tabIngredients.classList.remove('active');
+      els.tabSchedule.classList.remove('active'); els.tabIngredients.classList.remove('active');
       e.target.classList.add('active');
       els.scheduleBox.style.display = e.target.id === 'tabSchedule' ? 'block' : 'none';
       els.ingredientBox.style.display = e.target.id === 'tabIngredients' ? 'block' : 'none';
