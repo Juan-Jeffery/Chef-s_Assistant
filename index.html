@@ -4,12 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>Chef-s Assistant | 料理排程大師</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Noto+Serif+TC:wght@700&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet" />
   <style>
     :root {
       --primary: #7fbbb3;
       --bg-color: #f4f7f6;
-      --card-bg: #ffffff;
+      --card-bg: rgba(255, 255, 255, 0.92);
       --text-main: #2d3436;
       --active-blue: #3498db;
       --color-none: #f1f2f6;
@@ -22,73 +22,75 @@
     body {
       font-family: 'Inter', "Noto Sans TC", sans-serif;
       background-color: var(--bg-color);
-      background-image: linear-gradient(rgba(244, 247, 246, 0.85), rgba(244, 247, 246, 0.85)), 
-                        url('https://images.unsplash.com/photo-1506368249639-73a05d6f6488?auto=format&fit=crop&q=80&w=1000');
+      background-image: linear-gradient(rgba(244, 247, 246, 0.8), rgba(244, 247, 246, 0.8)), 
+                        url('https://images.unsplash.com/photo-1495195129352-aeb325a55b65?auto=format&fit=crop&q=80&w=1500');
       background-size: cover;
       background-attachment: fixed;
       color: var(--text-main);
-      margin: 0;
-      padding: 15px;
+      margin: 0; padding: 15px;
     }
 
     .container { max-width: 1000px; margin: 0 auto; }
-    header { text-align: center; margin-bottom: 25px; }
-    
-    .dashboard-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 15px; }
-    .card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(5px); border-radius: 12px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 15px; }
-    h2 { font-size: 1rem; border-left: 4px solid var(--primary); padding-left: 10px; margin-top: 0; margin-bottom: 15px; }
+    header h1 { font-family: 'Noto Serif TC', serif; font-size: 2.5rem; margin-bottom: 5px; letter-spacing: 2px; }
 
-    /* 廚具與標籤樣式 (維持原樣) */
-    .tool-group { display: flex; flex-wrap: wrap; gap: 8px; }
-    .tool-btn { padding: 10px 18px; border: 1px solid #ddd; background: white; border-radius: 25px; cursor: pointer; font-size: 0.9rem; font-weight: 600; color: #666; }
-    .tool-btn.active[data-tool="無鍋具"] { background: var(--color-none); border-color: #ccc; }
+    .dashboard-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 20px; }
+    .card { background: var(--card-bg); backdrop-filter: blur(10px); border-radius: 16px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 20px; }
+    h2 { font-size: 1.1rem; border-left: 5px solid var(--primary); padding-left: 12px; margin-top: 0; font-weight: 700; }
+
+    /* 工具與標籤 */
+    .tool-btn { padding: 12px 20px; border: 1px solid #ddd; background: white; border-radius: 30px; cursor: pointer; transition: 0.3s; font-weight: 600; margin: 4px; }
+    .tool-btn.active[data-tool="無鍋具"] { background: var(--color-none); }
     .tool-btn.active[data-tool="電鍋"] { background: var(--color-rice); border-color: #ffd8a8; }
     .tool-btn.active[data-tool="湯鍋"] { background: var(--color-soup); border-color: #a5d8ff; }
     .tool-btn.active[data-tool="炒鍋"] { background: var(--color-fry); border-color: #b2f2bb; }
 
-    #filteredRecipes { display: flex; flex-wrap: wrap; gap: 8px; }
-    .recipe-chip { padding: 10px 14px; border: 2.5px solid transparent; border-radius: 10px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
-    .recipe-chip.active-recipe { border-color: var(--active-blue) !important; }
+    .recipe-chip { padding: 12px 16px; border: 3px solid transparent; border-radius: 12px; cursor: pointer; font-weight: 700; transition: 0.3s; }
+    .recipe-chip.active-recipe { border-color: var(--active-blue) !important; transform: scale(1.02); }
 
-    .selected-tag { display: inline-flex; align-items: center; padding: 8px 16px; border-radius: 25px; margin: 4px; font-size: 0.85rem; border: 1px solid rgba(0,0,0,0.05); font-weight: 600; cursor: pointer; }
-    .selected-tag::after { content: '×'; margin-left: 8px; color: #999; }
+    .selected-tag { display: inline-flex; align-items: center; padding: 10px 18px; border-radius: 30px; margin: 5px; font-weight: 700; cursor: pointer; border: 1px solid rgba(0,0,0,0.08); }
+    .selected-tag::after { content: '✕'; margin-left: 10px; font-size: 0.8rem; opacity: 0.5; }
 
-    /* Tab 與排程樣式 */
-    .tabs { display: flex; gap: 5px; margin-top: 15px; }
-    .tab-btn { flex: 1; padding: 12px; border: none; background: #dfe6e9; border-radius: 8px 8px 0 0; font-weight: bold; cursor: pointer; }
-    .tab-btn.active { background: white; border-bottom: 3px solid var(--primary); }
-    .detail-item { padding: 15px; border-bottom: 1px solid #eee; }
-    .detail-name { font-weight: bold; color: var(--active-blue); margin-bottom: 5px; }
-    .detail-text { color: #555; font-size: 0.9rem; line-height: 1.5; }
+    /* 排程區塊修正 */
+    .tab-content-container { padding: 0; overflow: hidden; }
+    .timeline-wrapper { overflow-x: auto; padding: 20px 10px; }
+    .timeline-row { display: flex; align-items: center; margin-bottom: 15px; min-width: 650px; }
+    .timeline-label { width: 80px; font-weight: 700; font-size: 0.9rem; color: #555; }
+    .step-container { flex-grow: 1; position: relative; height: 48px; background: rgba(0,0,0,0.05); border-radius: 10px; }
+    .step-block { position: absolute; top: 8px; height: 32px; border-radius: 8px; padding: 0 12px; font-size: 12px; color: white; display: flex; align-items: center; font-weight: 700; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
 
-    .main-action-btn { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; margin-top: 10px; cursor: pointer; }
+    /* Tab 切換器 */
+    .tabs { display: flex; gap: 5px; }
+    .tab-btn { flex: 1; padding: 14px; border: none; background: #dfe6e9; border-radius: 12px 12px 0 0; font-weight: 700; cursor: pointer; font-size: 0.9rem; }
+    .tab-btn.active { background: white; border-bottom: 4px solid var(--primary); color: var(--primary); }
+
+    /* 按鈕 */
+    .main-action-btn { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: 0.3s; }
+    .main-action-btn:hover { opacity: 0.9; transform: translateY(-2px); }
     
-    /* 匯出按鈕樣式 */
-    #btnExportMenu { background: #576574; margin-top: 10px; }
+    /* 匯出按鈕：獨立且置中 */
+    #btnExportMenu { 
+      background: #2d3436; max-width: 250px; margin: 20px auto 0 auto; display: none; 
+      justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
 
-    /* --- 菜單彈窗 (Modal) --- */
+    /* --- 今日宴席 菜單彈窗 --- */
     #menuOverlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center;
-      z-index: 1000; padding: 20px;
+      background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center;
+      z-index: 9999; cursor: pointer;
     }
-
     #menuContent {
-      background: white; width: 100%; max-width: 400px;
-      padding: 40px 30px; border-radius: 2px; position: relative;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      background-image: linear-gradient(rgba(255,255,255,0.92), rgba(255,255,255,0.92)), 
-                        url('https://www.transparenttextures.com/patterns/cream-paper.png');
-      text-align: center; border: 8px double #d1ccc0;
+      background: #fff; width: 90%; max-width: 450px; border-radius: 4px; padding: 50px 30px;
+      background-image: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), 
+                        url('https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&q=80&w=800');
+      background-size: cover; text-align: center; border: 15px solid #2d3436; outline: 2px solid #fff; outline-offset: -10px;
     }
-
-    .menu-title { font-family: 'Noto Serif TC', serif; font-size: 1.8rem; margin-bottom: 30px; color: #2f3640; border-bottom: 1px solid #d1ccc0; padding-bottom: 10px; }
-    .menu-section { margin-bottom: 25px; }
-    .menu-cat { font-weight: bold; color: #7f8c8d; font-size: 0.8rem; letter-spacing: 3px; margin-bottom: 8px; }
-    .menu-dish { font-size: 1.2rem; font-weight: bold; color: #2d3436; margin-bottom: 4px; }
-    .menu-desc { font-size: 0.75rem; color: #636e72; font-style: italic; }
-    .menu-footer { margin-top: 40px; font-size: 0.7rem; color: #b2bec3; text-align: right; }
-    .click-to-close { position: absolute; bottom: -40px; left: 0; width: 100%; text-align: center; color: white; font-size: 0.9rem; opacity: 0.8; }
+    .menu-title { font-family: 'Noto Serif TC', serif; font-size: 2.2rem; margin-bottom: 30px; font-weight: 900; color: #1a1a1a; letter-spacing: 5px; }
+    .menu-cat { font-weight: 700; color: #555; font-size: 0.8rem; letter-spacing: 4px; margin-bottom: 10px; border-top: 1px solid #1a1a1a; display: inline-block; padding-top: 5px; }
+    .menu-dish { font-size: 1.4rem; font-weight: 900; color: #000; margin-bottom: 5px; }
+    .menu-desc { font-size: 0.8rem; color: #333; margin-bottom: 25px; line-height: 1.4; padding: 0 20px; font-style: italic; }
+    .menu-footer { margin-top: 40px; font-size: 0.75rem; color: #1a1a1a; font-weight: 700; text-align: right; }
+    .close-hint { color: #fff; position: absolute; bottom: 30px; font-size: 0.9rem; letter-spacing: 1px; }
 
     @media (max-width: 768px) { .dashboard-grid { grid-template-columns: 1fr; } }
   </style>
@@ -96,13 +98,13 @@
 <body>
 
 <div class="container">
-  <header>
+  <header style="text-align: center; margin-bottom: 40px;">
     <h1>Chef-s Assistant</h1>
-    <p>智慧排程，輕鬆搞定每一餐</p>
+    <p style="font-weight: 600; color: #666;">智慧排程 · 精緻宴席</p>
   </header>
 
   <div class="dashboard-grid">
-    <div>
+    <div class="sidebar">
       <div class="card">
         <h2>1. 選擇廚具</h2>
         <div class="tool-group">
@@ -118,24 +120,26 @@
       </div>
     </div>
 
-    <div>
+    <div class="main">
       <div class="card">
         <h2>3. 待煮清單</h2>
-        <div id="selectedRecipes"></div>
+        <div id="selectedRecipes" style="min-height: 50px;"></div>
         <button id="btnSchedule" class="main-action-btn">開始計算排程</button>
-        <button id="btnExportMenu" class="main-action-btn" style="display:none;">匯出今日菜單</button>
       </div>
 
       <div id="resultWrapper" style="display:none;">
         <div class="tabs">
-          <button id="tabSchedule" class="tab-btn active">時間軸</button>
+          <button id="tabSchedule" class="tab-btn active">料理時間軸</button>
           <button id="tabIngredients" class="tab-btn">食材明細</button>
           <button id="tabMethods" class="tab-btn">料理方法</button>
         </div>
-        <div class="card" style="border-radius: 0 0 12px 12px; border-top:none; padding:0;">
-          <div id="scheduleResult" style="padding:15px; overflow-x:auto;"></div>
-          <div id="ingredientResult" style="display:none;"></div>
-          <div id="methodResult" style="display:none;"></div>
+        <div class="card tab-content-container">
+          <div id="scheduleResult" class="timeline-wrapper"></div>
+          <div id="ingredientResult" style="display:none; padding: 20px;"></div>
+          <div id="methodResult" style="display:none; padding: 20px;"></div>
+          <div style="display: flex; justify-content: center; padding-bottom: 20px;">
+            <button id="btnExportMenu" class="main-action-btn">今日宴席 匯出</button>
+          </div>
         </div>
       </div>
     </div>
@@ -143,12 +147,12 @@
 </div>
 
 <div id="menuOverlay">
-  <div id="menuContent">
+  <div id="menuContent" onclick="event.stopPropagation()">
     <div class="menu-title">今日宴席</div>
     <div id="menuDishes"></div>
     <div class="menu-footer">來自 Chef-s Assistant</div>
-    <div class="click-to-close">點擊空白處返回頁面</div>
   </div>
+  <div class="close-hint">點擊任意處關閉菜單</div>
 </div>
 
 <script type="module">
@@ -157,6 +161,7 @@
 
   const state = { activeTools: new Set(), selectedRecipeIds: new Set() };
   const toolColors = { '無鍋具': '#f1f2f6', '電鍋': '#fff4e6', '湯鍋': '#e3f2fd', '炒鍋': '#e8f5e9' };
+  
   const els = {
     toolBtns: document.querySelectorAll('.tool-btn'),
     filteredBox: document.getElementById('filteredRecipes'),
@@ -174,6 +179,7 @@
 
   updateFiltered();
 
+  // 1. 工具選擇邏輯
   els.toolBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       const t = btn.dataset.tool;
@@ -189,6 +195,7 @@
     return `linear-gradient(135deg, ${tools.map(t => toolColors[t]).join(', ')})`;
   }
 
+  // 2. 渲染可做料理
   function updateFiltered() {
     const tools = Array.from(state.activeTools);
     els.filteredBox.innerHTML = '';
@@ -217,6 +224,7 @@
     });
   }
 
+  // 3. 待煮清單
   function renderSelected() {
     els.selectedBox.innerHTML = '';
     state.selectedRecipeIds.forEach(id => {
@@ -228,9 +236,9 @@
       tag.onclick = () => { state.selectedRecipeIds.delete(r.id); updateFiltered(); renderSelected(); };
       els.selectedBox.appendChild(tag);
     });
-    els.btnExport.style.display = state.selectedRecipeIds.size > 0 ? 'block' : 'none';
   }
 
+  // 4. 排程與 Tab 切換
   els.btnSchedule.addEventListener('click', () => {
     const checkedIds = Array.from(state.selectedRecipeIds);
     if (checkedIds.length === 0) return alert('請選擇料理');
@@ -241,6 +249,31 @@
     document.getElementById('tabSchedule').click();
   });
 
+  function renderTimeline(schedule) {
+    els.scheduleBox.innerHTML = '';
+    const rows = { '無鍋具': [], '炒鍋': [], '電鍋': [], '湯鍋': [] };
+    schedule.forEach(s => { rows[s.tool || '無鍋具'].push(s); });
+    const colors = ['#7fbbb3', '#3498db', '#45b7af', '#e67e22', '#9b59b6'];
+
+    Object.entries(rows).forEach(([tool, steps]) => {
+      if (steps.length === 0) return;
+      const row = document.createElement('div');
+      row.className = 'timeline-row';
+      row.innerHTML = `<div class="timeline-label">${tool}</div><div class="step-container"></div>`;
+      const container = row.querySelector('.step-container');
+      steps.forEach(s => {
+        const block = document.createElement('div');
+        block.className = 'step-block';
+        block.style.left = `${s.start * 10}px`;
+        block.style.width = `${(s.end - s.start) * 10 - 2}px`;
+        block.style.backgroundColor = colors[s.recipeId % colors.length];
+        block.innerHTML = `<span>${s.recipeName}</span>`;
+        container.appendChild(block);
+      });
+      els.scheduleBox.appendChild(row);
+    });
+  }
+
   function renderDetails(ids) {
     els.ingredientBox.innerHTML = ''; els.methodBox.innerHTML = '';
     ids.forEach(id => {
@@ -249,42 +282,20 @@
       ingDiv.innerHTML = `<div class="detail-name">${r.name}</div><div class="detail-text">${[...(r.main_ingredients || []), ...(r.seasonings || [])].join('、')}</div>`;
       els.ingredientBox.appendChild(ingDiv);
       const methodDiv = document.createElement('div'); methodDiv.className = 'detail-item';
-      methodDiv.innerHTML = `<div class="detail-name">${r.name}</div><div class="detail-text">${r.description || '暫無說明'}</div>`;
+      methodDiv.innerHTML = `<div class="detail-name">${r.name}</div><div class="detail-text">${r.description}</div>`;
       els.methodBox.appendChild(methodDiv);
     });
   }
 
-  function renderTimeline(schedule) {
-    els.scheduleBox.innerHTML = '';
-    const rows = { '無鍋具': [], '炒鍋': [], '電鍋': [], '湯鍋': [] };
-    schedule.forEach(s => rows[s.tool || '無鍋具'].push(s));
-    const colors = ['#7fbbb3', '#3498db', '#45b7af', '#e67e22', '#9b59b6'];
-    Object.entries(rows).forEach(([tool, steps]) => {
-      if (steps.length === 0) return;
-      const row = document.createElement('div'); row.className = 'timeline-row';
-      row.innerHTML = `<div class="timeline-label">${tool}</div><div class="step-container"></div>`;
-      steps.forEach(s => {
-        const block = document.createElement('div'); block.className = 'step-block';
-        block.style.left = `${s.start * 10}px`; block.style.width = `${(s.end - s.start) * 10 - 2}px`;
-        block.style.backgroundColor = colors[s.recipeId % colors.length];
-        block.innerHTML = `<span>${s.recipeName}</span>`;
-        row.querySelector('.step-container').appendChild(block);
-      });
-      els.scheduleBox.appendChild(row);
-    });
-  }
-
-  // --- 匯出菜單功能 ---
+  // 5. 匯出「今日宴席」
   els.btnExport.addEventListener('click', () => {
     els.menuDishes.innerHTML = '';
     const categories = ['主食', '主菜', '配菜', '湯品'];
     const selected = recipes.filter(r => state.selectedRecipeIds.has(r.id));
-
     categories.forEach(cat => {
       const dishes = selected.filter(r => r.category === cat);
       if (dishes.length > 0) {
         const sec = document.createElement('div');
-        sec.className = 'menu-section';
         sec.innerHTML = `<div class="menu-cat">－ ${cat} －</div>`;
         dishes.forEach(d => {
           sec.innerHTML += `<div class="menu-dish">${d.name}</div><div class="menu-desc">${d.description}</div>`;
@@ -295,10 +306,7 @@
     els.menuOverlay.style.display = 'flex';
   });
 
-  // 點擊空白處關閉
-  els.menuOverlay.addEventListener('click', (e) => {
-    if (e.target === els.menuOverlay) els.menuOverlay.style.display = 'none';
-  });
+  els.menuOverlay.onclick = () => els.menuOverlay.style.display = 'none';
 
   els.tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
