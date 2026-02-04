@@ -13,6 +13,14 @@
       --text-main: #2d3436;
     }
 
+    /* 被選中食譜的高亮樣式 */
+    .recipe-chip.active-recipe {
+      background-color: #3498db !important; /* 經典藍框感 */
+      color: white;
+      border: 2px solid #2980b9;
+      box-shadow: 0 0 8px rgba(52, 152, 219, 0.4);
+    }
+
     /* 基礎重設 */
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
@@ -231,18 +239,38 @@
       if (needed.length === 0) return state.activeTools.has('無鍋具');
       return needed.every(t => tools.includes(t));
     });
+
     if (available.length === 0) {
       els.filteredBox.innerHTML = '<p style="color:#999; font-size:0.8rem;">選個鍋具吧！</p>';
       return;
     }
+
     available.forEach(r => {
       const btn = document.createElement('button');
       btn.className = 'recipe-chip';
-      btn.textContent = `+ ${r.name}`;
+      
+      // --- 核心邏輯：如果已經被選中，加上 active-recipe class ---
+      if (state.selectedRecipeIds.has(r.id)) {
+        btn.classList.add('active-recipe');
+      }
+      
+      btn.textContent = state.selectedRecipeIds.has(r.id) ? `✓ ${r.name}` : `+ ${r.name}`;
+      
       btn.onclick = () => {
-        const cur = recipes.filter(i => state.selectedRecipeIds.has(i.id));
-        if (r.category === '主食' && cur.some(i => i.category === '主食')) return alert('⚠️ 澱粉超標警告！');
-        state.selectedRecipeIds.add(r.id);
+        if (state.selectedRecipeIds.has(r.id)) {
+          // 如果已經選了，再次點擊就是「取消選擇」
+          state.selectedRecipeIds.delete(r.id);
+        } else {
+          // 如果還沒選，執行「選取」
+          const cur = recipes.filter(i => state.selectedRecipeIds.has(i.id));
+          if (r.category === '主食' && cur.some(i => i.category === '主食')) {
+            alert('⚠️ 澱粉超標警告！');
+            return;
+          }
+          state.selectedRecipeIds.add(r.id);
+        }
+        // 同時更新「可做料理」的視覺狀態與「待煮清單」的內容
+        updateFiltered(); 
         renderSelected();
       };
       els.filteredBox.appendChild(btn);
