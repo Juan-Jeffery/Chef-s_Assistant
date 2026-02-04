@@ -2,199 +2,64 @@ import { recipes } from './recipes.js';
 
 export function scheduleRecipes(selectedIds, availableTools) {
   let schedule = [];
-  let toolUsage = {};
+  let toolNextAvailableTime = {}; // 記錄各個鍋具的下個空檔
+  
+  // 初始化所有鍋具的可用時間為 0
+  availableTools.forEach(tool => toolNextAvailableTime[tool] = 0);
+  if (!toolNextAvailableTime['無鍋具']) toolNextAvailableTime['無鍋具'] = 0;
 
-  function getToolAvailableTime(tool) {
-    if (!tool) return 0;
-    return toolUsage[tool] || 0;
-  }
-
-  function setToolUsage(tool, endTime) {
-    if (!tool) return;
-    toolUsage[tool] = endTime;
-  }
-
+  // 1. 取得所有步驟並展開
+  let allSteps = [];
   selectedIds.forEach(id => {
     const recipe = recipes.find(r => r.id === id);
     if (!recipe) return;
-
-    const isPasta = recipe.name.includes('義大利麵');
-    const isStirFriedDish = recipe.name.includes('炒') && (recipe.name.includes('飯') || recipe.name.includes('麵'));
-    const isRiceDish = recipe.name.includes('飯') && !recipe.name.includes('炒');
-
-    if (isPasta) {
-      // 義大利麵特殊雙步驟平行排程（煮麵＋煮醬）
-      const step1 = recipe.steps[0]; // 煮麵
-      const step2 = recipe.steps[1]; // 煮醬
-      const step3 = recipe.steps[2]; // 炒麵加醬（如果有）
-
-      const longerStep = step1.time >= step2.time ? step1 : step2;
-      const shorterStep = step1.time < step2.time ? step1 : step2;
-
-      const longerToolAvailable = getToolAvailableTime(longerStep.tool);
-      const shorterToolAvailable = getToolAvailableTime(shorterStep.tool);
-
-      let longerStart = longerToolAvailable;
-      let longerEnd = longerStart + longerStep.time;
-
-      let shorterStart = longerEnd - shorterStep.time;
-
-      if (shorterStart < shorterToolAvailable) {
-        shorterStart = shorterToolAvailable;
-        const adjustedEnd = shorterStart + shorterStep.time;
-        longerStart = adjustedEnd - longerStep.time;
-        longerEnd = adjustedEnd;
-      }
-
-      schedule.push({
+    
+    recipe.steps.forEach((step, index) => {
+      allSteps.push({
+        ...step,
         recipeId: id,
         recipeName: recipe.name,
-        stepName: longerStep.name,
-        tool: longerStep.tool,
-        start: longerStart,
-        end: longerEnd
+        stepIndex: index
       });
-      setToolUsage(longerStep.tool, longerEnd);
-
-      schedule.push({
-        recipeId: id,
-        recipeName: recipe.name,
-        stepName: shorterStep.name,
-        tool: shorterStep.tool,
-        start: shorterStart,
-        end: longerEnd
-      });
-      setToolUsage(shorterStep.tool, longerEnd);
-
-      if (step3) {
-        const step3ToolAvailable = getToolAvailableTime(step3.tool);
-        const step3Start = Math.max(longerEnd, step3ToolAvailable);
-        const step3End = step3Start + step3.time;
-
-        schedule.push({
-          recipeId: id,
-          recipeName: recipe.name,
-          stepName: step3.name,
-          tool: step3.tool,
-          start: step3Start,
-          end: step3End
-        });
-        setToolUsage(step3.tool, step3End);
-      }
-
-    } else if (isStirFriedDish) {
-      // 炒飯、炒麵、炒泡麵等炒類飯麵料理，用彈性排程（跟炒泡麵一樣）
-      recipe.steps.forEach((step) => {
-        let start = 0;
-
-        if (step.dependsOn !== undefined) {
-          const prevStep = recipe.steps[step.dependsOn];
-          start = schedule.find(s => s.recipeId === id && s.stepName === prevStep.name)?.end || 0;
-        }
-
-        const toolAvailable = getToolAvailableTime(step.tool);
-        const stepStart = Math.max(start, toolAvailable);
-        const stepEnd = stepStart + step.time;
-
-        setToolUsage(step.tool, stepEnd);
-
-        schedule.push({
-          recipeId: id,
-          recipeName: recipe.name,
-          stepName: step.name,
-          tool: step.tool,
-          start: stepStart,
-          end: stepEnd
-        });
-      });
-
-    } else if (isRiceDish) {
-      // 其他飯類料理排程（不炒飯）
-      const cookRiceStep = recipe.steps[0];
-      const mainDishStep = recipe.steps[1] || null;
-
-      const riceStart = getToolAvailableTime(cookRiceStep.tool);
-      const riceEnd = riceStart + cookRiceStep.time;
-      setToolUsage(cookRiceStep.tool, riceEnd);
-      schedule.push({
-        recipeId: id,
-        recipeName: recipe.name,
-        stepName: cookRiceStep.name,
-        tool: cookRiceStep.tool,
-        start: riceStart,
-        end: riceEnd
-      });
-
-      let prevStepsEnd = riceEnd;
-
-      if (mainDishStep) {
-        const mainStart = getToolAvailableTime(mainDishStep.tool);
-        const mainEnd = mainStart + mainDishStep.time;
-        setToolUsage(mainDishStep.tool, mainEnd);
-        schedule.push({
-          recipeId: id,
-          recipeName: recipe.name,
-          stepName: mainDishStep.name,
-          tool: mainDishStep.tool,
-          start: mainStart,
-          end: mainEnd
-        });
-        prevStepsEnd = Math.max(riceEnd, mainEnd);
-      }
-
-      for (let i = 2; i < recipe.steps.length; i++) {
-        const step = recipe.steps[i];
-        let start = prevStepsEnd;
-
-        if (step.dependsOn !== undefined) {
-          const prevStep = recipe.steps[step.dependsOn];
-          start = schedule.find(s => s.recipeId === id && s.stepName === prevStep.name)?.end || prevStepsEnd;
-        }
-
-        const toolAvailable = getToolAvailableTime(step.tool);
-        const stepStart = Math.max(start, toolAvailable);
-        const stepEnd = stepStart + step.time;
-
-        setToolUsage(step.tool, stepEnd);
-
-        schedule.push({
-          recipeId: id,
-          recipeName: recipe.name,
-          stepName: step.name,
-          tool: step.tool,
-          start: stepStart,
-          end: stepEnd
-        });
-      }
-
-    } else {
-      // 一般排程
-      recipe.steps.forEach((step, idx) => {
-        let start = 0;
-
-        if (step.dependsOn !== undefined) {
-          const prevStep = recipe.steps[step.dependsOn];
-          start = schedule.find(s => s.recipeId === id && s.stepName === prevStep.name)?.end || 0;
-        }
-
-        const toolAvailable = getToolAvailableTime(step.tool);
-        const stepStart = Math.max(start, toolAvailable);
-        const stepEnd = stepStart + step.time;
-
-        setToolUsage(step.tool, stepEnd);
-
-        schedule.push({
-          recipeId: id,
-          recipeName: recipe.name,
-          stepName: recipe.steps.length === 1 ? recipe.name : step.name,
-          tool: step.tool,
-          start: stepStart,
-          end: stepEnd
-        });
-      });
-    }
+    });
   });
 
-  schedule.sort((a, b) => a.start - b.start);
-  return schedule;
+  // 2. 排序：優先處理耗時長或有依賴關係的步驟（類似於最長路徑優先）
+  // 這裡簡單採用 recipeId 排序，確保同一道菜的步驟連續性
+  allSteps.sort((a, b) => a.recipeId - b.recipeId || a.stepIndex - b.stepIndex);
+
+  // 3. 模擬排程邏輯
+  allSteps.forEach(step => {
+    const tool = step.tool || '無鍋具';
+    let startTime = 0;
+
+    // A. 檢查前置步驟依賴
+    if (step.dependsOn !== undefined) {
+      const prevStep = schedule.find(s => s.recipeId === step.recipeId && s.stepIndex === step.dependsOn);
+      if (prevStep) startTime = prevStep.end;
+    }
+
+    // B. 檢查鍋具資源可用時間
+    const toolReadyTime = toolNextAvailableTime[tool] || 0;
+    
+    // 最終開始時間是「前置完成」與「鍋具準備好」的較晚者
+    const finalStart = Math.max(startTime, toolReadyTime);
+    const finalEnd = finalStart + step.time;
+
+    // C. 更新鍋具狀態
+    toolNextAvailableTime[tool] = finalEnd;
+
+    // D. 存入排程
+    schedule.push({
+      recipeId: step.recipeId,
+      recipeName: step.recipeName,
+      stepName: step.name,
+      tool: tool,
+      start: finalStart,
+      end: finalEnd,
+      stepIndex: step.stepIndex
+    });
+  });
+
+  return schedule.sort((a, b) => a.start - b.start);
 }
