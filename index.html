@@ -27,7 +27,7 @@
             color: #5d5c58;
         }
 
-        /* 莫蘭迪裝飾背景 */
+        /* 裝飾性點狀背景 */
         body::before {
             content: "";
             position: fixed;
@@ -46,9 +46,9 @@
         }
 
         h1 {
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             font-weight: 300;
-            letter-spacing: 6px;
+            letter-spacing: 5px;
             color: var(--mo-grey);
             margin-bottom: 50px;
             text-transform: uppercase;
@@ -57,46 +57,45 @@
         .nav-menu {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 18px;
         }
 
         .nav-button {
             background: var(--mo-white);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.3);
+            border: 1px solid rgba(255,255,255,0.4);
             padding: 22px;
-            border-radius: 16px;
+            border-radius: 18px;
             text-decoration: none;
             color: var(--mo-grey);
             font-size: 1.1rem;
             letter-spacing: 2px;
-            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        /* 個別按鈕微調色 */
-        .btn-planner:hover { border-left: 8px solid var(--mo-blue); color: var(--mo-blue); }
-        .btn-assistant:hover { border-left: 8px solid var(--mo-rose); color: var(--mo-rose); }
-        .btn-unknown:hover { border-left: 8px solid var(--mo-green); color: var(--mo-green); }
+        /* 滑動側邊條效果 */
+        .btn-planner:hover { border-left: 10px solid var(--mo-blue); color: var(--mo-blue); }
+        .btn-assistant:hover { border-left: 10px solid var(--mo-rose); color: var(--mo-rose); }
+        .btn-unknown:hover { border-left: 10px solid var(--mo-green); color: var(--mo-green); }
 
         .nav-button:hover {
-            transform: scale(1.02);
+            transform: translateY(-3px);
             background: #ffffff;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.08);
         }
 
         .nav-button span {
-            margin-right: 10px;
-            font-size: 1.3rem;
+            margin-right: 12px;
+            font-size: 1.4rem;
         }
 
-        /* 手機版優化 */
         @media (max-width: 480px) {
-            h1 { font-size: 1.8rem; letter-spacing: 4px; }
-            .nav-button { padding: 18px; font-size: 1rem; }
+            h1 { font-size: 1.8rem; }
+            .nav-button { padding: 20px; }
         }
 
         footer {
@@ -105,7 +104,7 @@
             font-size: 0.7rem;
             letter-spacing: 2px;
             color: var(--mo-grey);
-            opacity: 0.6;
+            opacity: 0.5;
         }
     </style>
 </head>
@@ -115,21 +114,21 @@
         <h1>WHAT TO EAT</h1>
         
         <nav class="nav-menu">
-            <a href="planner/weekly.html" class="nav-button btn-planner">
+            <a href="planner/planner.html" class="nav-button btn-planner">
                 <span>🗓️</span> Weekly Planner
             </a>
             
-            <a href="assistant/meal_planner.html" class="nav-button btn-assistant">
+            <a href="assistant/assistant.html" class="nav-button btn-assistant">
                 <span>👨‍🍳</span> Meal Planner
             </a>
             
-            <a href="randomizer/unknown.html" class="nav-button btn-unknown">
+            <a href="randomizer/randomizer.html" class="nav-button btn-unknown">
                 <span>❓</span> I Don't Know
             </a>
         </nav>
     </div>
 
-    <footer>EST. 2026 | DESIGNED FOR CHEF</footer>
+    <footer>EST. 2026 | CHEF'S SUITE</footer>
 
 </body>
 </html>
