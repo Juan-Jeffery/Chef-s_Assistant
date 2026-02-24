@@ -29,7 +29,7 @@
       margin: 0; padding: 40px 20px;
     }
 
-    /* 莫蘭迪背景裝飾 */
+    /* 莫蘭迪背景裝飾點陣 */
     body::before {
       content: "";
       position: fixed;
@@ -78,7 +78,7 @@
       color: var(--mo-grey);
     }
 
-    /* 按鈕樣式統一 */
+    /* 按鈕與標籤樣式統一 */
     .tool-btn { 
       padding: 8px 16px; 
       border: 1px solid var(--mo-sand); 
@@ -100,11 +100,13 @@
       margin: 5px;
       border: 1px solid rgba(0,0,0,0.05);
       font-size: 0.85rem;
-      transition: transform 0.2s;
+      transition: all 0.2s;
+      display: inline-block;
     }
     .recipe-chip.active-recipe { 
       border: 2px solid var(--mo-rose) !important; 
       transform: translateY(-2px);
+      background: white !important;
     }
 
     .selected-tag { 
@@ -119,7 +121,7 @@
       cursor: pointer;
     }
 
-    /* 排程內容 */
+    /* 排程內容時間軸 */
     .timeline-row { display: flex; align-items: center; margin-bottom: 15px; }
     .timeline-label { width: 70px; font-weight: 600; font-size: 0.8rem; color: var(--mo-grey); }
     .step-container { flex-grow: 1; position: relative; height: 40px; background: rgba(0,0,0,0.03); border-radius: 6px; }
@@ -130,7 +132,7 @@
     .detail-title { font-size: 1.1rem; font-weight: 600; color: var(--mo-rose); margin-bottom: 8px; }
     .ing-tag { display: inline-block; background: var(--mo-sand); padding: 3px 8px; border-radius: 4px; margin: 2px; font-size: 0.8rem; }
 
-    /* Tab 切換 */
+    /* Tab 切換器樣式 */
     .tabs { display: flex; gap: 10px; }
     .tab-btn { 
       flex: 1; padding: 12px; border: none; 
@@ -139,7 +141,7 @@
     }
     .tab-btn.active { background: var(--mo-white); color: var(--mo-rose); font-weight: bold; }
 
-    /* 行動按鈕 */
+    /* 主行動按鈕 */
     .main-action-btn { 
       width: 100%; padding: 15px; 
       background: var(--mo-blue); color: white; 
@@ -228,10 +230,10 @@
 </div>
 
 <script type="module">
-  import { recipes } from '../recipes.js'; // 修正路徑
-  import { scheduleRecipes } from '../scheduler.js'; // 修正路徑
+  // 修正引用路徑，確保與新目錄結構一致
+  import { recipes } from '../recipes.js'; 
+  import { scheduleRecipes } from '../scheduler.js';
 
-  // ... (保留原本的邏輯代碼，僅更新顏色變數) ...
   const state = { activeTools: new Set(), selectedRecipeIds: new Set() };
   const toolColors = { '無鍋具': '#e3e2df', '電鍋': '#a2b9bc', '湯鍋': '#92a8d1', '炒鍋': '#b18597' };
   
@@ -263,6 +265,12 @@
     });
   });
 
+  function getRecipeBackground(recipe) {
+    const tools = [...new Set(recipe.steps.map(s => s.tool || '無鍋具'))];
+    if (tools.length === 1) return toolColors[tools[0]];
+    return `linear-gradient(135deg, ${tools.map(t => toolColors[t]).join(', ')})`;
+  }
+
   function updateFiltered() {
     const tools = Array.from(state.activeTools);
     els.filteredBox.innerHTML = '';
@@ -277,7 +285,7 @@
       const isSelected = state.selectedRecipeIds.has(r.id);
       btn.className = isSelected ? 'recipe-chip active-recipe' : 'recipe-chip';
       btn.textContent = r.name;
-      btn.style.background = isSelected ? 'white' : 'rgba(255,255,255,0.5)';
+      btn.style.background = isSelected ? 'white' : getRecipeBackground(r);
       btn.onclick = () => {
         if (state.selectedRecipeIds.has(r.id)) state.selectedRecipeIds.delete(r.id);
         else state.selectedRecipeIds.add(r.id);
@@ -301,83 +309,4 @@
 
   els.btnSchedule.addEventListener('click', () => {
     if (state.selectedRecipeIds.size === 0) return alert('請選擇料理');
-    const schedule = scheduleRecipes(Array.from(state.selectedRecipeIds), Array.from(state.activeTools));
-    els.resultWrapper.style.display = 'block';
-    renderTimeline(schedule);
-    renderDetails(Array.from(state.selectedRecipeIds));
-    document.getElementById('tabSchedule').click();
-  });
-
-  function renderTimeline(schedule) {
-    els.scheduleBox.innerHTML = '';
-    const rows = { '無鍋具': [], '炒鍋': [], '電鍋': [], '湯鍋': [] };
-    schedule.forEach(s => { if(rows[s.tool || '無鍋具']) rows[s.tool || '無鍋具'].push(s); });
-    const colors = ['#92a8d1', '#a2b9bc', '#b18597', '#8e8d8a'];
-
-    Object.entries(rows).forEach(([tool, steps]) => {
-      if (steps.length === 0) return;
-      const row = document.createElement('div');
-      row.className = 'timeline-row';
-      row.innerHTML = `<div class="timeline-label">${tool}</div><div class="step-container"></div>`;
-      steps.forEach(s => {
-        const block = document.createElement('div');
-        block.className = 'step-block';
-        block.style.left = `${s.start * 8}px`;
-        block.style.width = `${(s.end - s.start) * 8 - 2}px`;
-        block.style.backgroundColor = colors[s.recipeId % colors.length];
-        block.innerHTML = `<span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${s.recipeName}</span>`;
-        row.querySelector('.step-container').appendChild(block);
-      });
-      els.scheduleBox.appendChild(row);
-    });
-  }
-
-  function renderDetails(ids) {
-    els.ingredientBox.innerHTML = ''; els.methodBox.innerHTML = '';
-    ids.forEach(id => {
-      const r = recipes.find(i => i.id === id);
-      const ingCard = document.createElement('div');
-      ingCard.className = 'detail-card';
-      ingCard.innerHTML = `<div class="detail-title">${r.name}</div><div>${r.main_ingredients.map(i => `<span class="ing-tag">${i}</span>`).join('')}</div>`;
-      els.ingredientBox.appendChild(ingCard);
-      
-      const methodCard = document.createElement('div');
-      methodCard.className = 'detail-card';
-      methodCard.innerHTML = `<div class="detail-title">${r.name}</div><div style="font-size:0.85rem; line-height:1.6;">${r.description}</div>`;
-      els.methodBox.appendChild(methodCard);
-    });
-  }
-
-  els.btnExport.addEventListener('click', () => {
-    if (state.selectedRecipeIds.size === 0) return alert('請選擇料理');
-    els.menuDishes.innerHTML = '';
-    state.selectedRecipeIds.forEach(id => {
-      const r = recipes.find(i => i.id === id);
-      els.menuDishes.innerHTML += `<div style="text-align:center; margin-bottom:15px;"><div style="font-weight:bold; color:var(--mo-rose);">${r.name}</div><div style="font-size:0.8rem; color:#888;">${r.description}</div></div>`;
-    });
-    els.menuOverlay.style.display = 'flex';
-  });
-
-  els.menuOverlay.onclick = () => els.menuOverlay.style.display = 'none';
-
-  els.btnDownload.onclick = (e) => {
-    e.stopPropagation();
-    html2canvas(els.captureArea).then(canvas => {
-      const link = document.createElement('a');
-      link.download = 'menu.png';
-      link.href = canvas.toDataURL();
-      link.click();
-    });
-  };
-
-  els.tabBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      els.tabBtns.forEach(b => b.classList.remove('active')); btn.classList.add('active');
-      els.scheduleBox.style.display = btn.id === 'tabSchedule' ? 'block' : 'none';
-      els.ingredientBox.style.display = btn.id === 'tabIngredients' ? 'block' : 'none';
-      els.methodBox.style.display = btn.id === 'tabMethods' ? 'block' : 'none';
-    });
-  });
-</script>
-</body>
-</html>
+    const schedule =
