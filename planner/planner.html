@@ -13,7 +13,7 @@
             --mo-sand: #e3e2df;
             --mo-white: rgba(255, 255, 255, 0.9);
             --text-color: #5d5c58;
-            --bg-gradient: linear-gradient(135deg, #e3e2df 0%, #cfd9df 100%);
+            --bg-gradient: linear-gradient(135deg, #92a8d1 0%, #cfd9df 100%);
         }
 
         body {
@@ -22,7 +22,7 @@
             background-attachment: fixed;
             color: var(--text-color);
             margin: 0;
-            padding: 40px 20px;
+            padding: 40px 20px 80px 20px; /* 增加底部留白給返回連結 */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -121,6 +121,24 @@
         }
         .ing-tag span { margin-left: 8px; font-weight: bold; color: var(--mo-rose); }
 
+        /* 返回首頁連結樣式 */
+        .back-link {
+            margin-top: 50px;
+            text-decoration: none;
+            color: var(--mo-grey);
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            border-bottom: 1px solid var(--mo-grey);
+            transition: all 0.3s;
+            opacity: 0.8;
+        }
+
+        .back-link:hover {
+            color: var(--mo-rose);
+            border-bottom-color: var(--mo-rose);
+            opacity: 1;
+        }
+
         /* 彈窗 */
         #modalOverlay {
             display: none; position: fixed; top:0; left:0; width:100%; height:100%;
@@ -157,6 +175,8 @@
             <div class="tag-cloud" id="summaryBox">等待您的計畫...</div>
         </div>
     </div>
+
+    <a href="../index.html" class="back-link">← 返回首頁</a>
 
     <div id="modalOverlay">
         <div class="modal">
