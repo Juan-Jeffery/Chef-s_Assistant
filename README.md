@@ -24,7 +24,7 @@ Chef-s_Assistant/
 ```
 ---
 
-## ✨ Introduction to Three Core Modules
+## Introduction to Three Core Modules
 
 ### 1. 🗓️ Weekly Planner
 This is your food planning brain. You can plan your breakfast, lunch, and dinner for five days a week here, and the system will automatically handle the tedious statistical work for you.
