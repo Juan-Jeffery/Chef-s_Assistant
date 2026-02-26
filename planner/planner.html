@@ -72,11 +72,7 @@
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* 餐點條目與刪除按鈕 */
-        .food-entry { 
-            position: relative; margin-top: 12px; font-size: 0.9rem; 
-            padding-right: 30px; /* 給叉叉留空間 */
-        }
+        .food-entry { position: relative; margin-top: 12px; font-size: 0.9rem; padding-right: 30px; }
         .food-entry b { color: var(--mo-rose); display: block; }
         .food-entry span { font-size: 0.8rem; color: var(--mo-grey); }
         
@@ -101,7 +97,6 @@
             font-size: 0.85rem; letter-spacing: 2px; border-bottom: 1px solid var(--mo-grey);
         }
 
-        /* 彈窗樣式 */
         #modalOverlay {
             display: none; position: fixed; top:0; left:0; width:100%; height:100%;
             background: rgba(0,0,0,0.3); backdrop-filter: blur(5px);
@@ -158,11 +153,9 @@
             <h3>新增餐點</h3>
             <span class="modal-label">餐點名稱</span>
             <input type="text" id="foodName" class="main-input" placeholder="例如：番茄炒蛋">
-            
             <span class="modal-label">食材清單</span>
             <div id="ingRowsContainer"></div>
             <button class="btn-add-row" onclick="addIngRow()">＋ 新增食材</button>
-
             <div class="btn-group">
                 <button class="btn-cancel" onclick="closeModal()">取消</button>
                 <button class="btn-save" onclick="saveData()">確認加入</button>
@@ -171,18 +164,36 @@
     </div>
 
     <script>
-        const meals = ['早餐', '午餐', '晚餐'];
-        let activeSelection = {};
+        const mealsTypes = ['早餐', '午餐', '晚餐'];
+        const days = ['週一', '週二', '週三', '週四', '週五'];
         
-        // 核心數據結構：按時間格儲存餐點及其食材
-        // 結構：{ "週一-早餐": [ {id, food, ings:[{name, qty}]} ] }
-        let plannerData = {};
+        // --- 預設餐點資料庫 ---
+        const defaultPool = {
+            '早餐': [
+                { food: '三明治', ings: [{ name: '吐司', qty: 2 }, { name: '火腿', qty: 1 }] },
+                { food: '燕麥粥', ings: [{ name: '燕麥', qty: 1 }, { name: '牛奶', qty: 1 }] },
+                { food: '蛋餅', ings: [{ name: '蛋餅皮', qty: 1 }, { name: '雞蛋', qty: 1 }] }
+            ],
+            '午餐': [
+                { food: '雞肉沙拉', ings: [{ name: '雞胸肉', qty: 1 }, { name: '生菜', qty: 1 }] },
+                { food: '牛肉麵', ings: [{ name: '牛肉', qty: 1 }, { name: '麵條', qty: 1 }] },
+                { food: '番茄炒蛋飯', ings: [{ name: '番茄', qty: 1 }, { name: '雞蛋', qty: 2 }] }
+            ],
+            '晚餐': [
+                { food: '煎牛排', ings: [{ name: '牛排', qty: 1 }, { name: '節瓜', qty: 1 }] },
+                { food: '烤鮭魚', ings: [{ name: '鮭魚', qty: 1 }, { name: '蘆筍', qty: 1 }] },
+                { food: '麻婆豆腐', ings: [{ name: '豆腐', qty: 1 }, { name: '豬肉末', qty: 1 }] }
+            ]
+        };
 
-        // 初始化
+        let plannerData = {};
+        let activeSelection = {};
+
+        // 初始化頁面
         document.querySelectorAll('.card[data-day]').forEach(card => {
             const day = card.dataset.day;
             const container = card.querySelector('.content');
-            meals.forEach(m => {
+            mealsTypes.forEach(m => {
                 const key = `${day}-${m}`;
                 plannerData[key] = [];
                 const div = document.createElement('div');
@@ -194,6 +205,31 @@
                 container.appendChild(div);
             });
         });
+
+        // --- 隨機生成預設餐點功能 ---
+        function generateRandomPlan() {
+            days.forEach(day => {
+                mealsTypes.forEach(type => {
+                    const key = `${day}-${type}`;
+                    // 從 Pool 中隨機選一個
+                    const pool = defaultPool[type];
+                    const randomPick = pool[Math.floor(Math.random() * pool.length)];
+                    
+                    // 加入資料結構 (深拷貝 ings 以防引用問題)
+                    plannerData[key].push({
+                        id: Date.now() + Math.random(),
+                        food: randomPick.food,
+                        ings: JSON.parse(JSON.stringify(randomPick.ings))
+                    });
+                    
+                    renderMealList(key);
+                });
+            });
+            updateGroceryList();
+        }
+
+        // 頁面加載後執行隨機生成
+        window.onload = generateRandomPlan;
 
         function addIngRow(name = '', qty = 1) {
             const container = document.getElementById('ingRowsContainer');
@@ -234,34 +270,22 @@
             const foodName = document.getElementById('foodName').value.trim();
             const rows = document.querySelectorAll('.ing-row');
             let tempIngs = [];
-            
             rows.forEach(row => {
                 const name = row.querySelector('.ing-name').value.trim();
                 const qty = parseInt(row.querySelector('.qty-val').innerText);
                 if(name) tempIngs.push({ name, qty });
             });
-
             if(!foodName || tempIngs.length === 0) return;
-
             const key = `${activeSelection.d}-${activeSelection.m}`;
-            const entryId = Date.now(); // 唯一識別碼，用於刪除
-            
-            plannerData[key].push({
-                id: entryId,
-                food: foodName,
-                ings: tempIngs
-            });
-
+            plannerData[key].push({ id: Date.now(), food: foodName, ings: tempIngs });
             renderMealList(key);
             updateGroceryList();
             closeModal();
         }
 
-        // 渲染特定時間格的餐點清單
         function renderMealList(key) {
             const targetList = document.getElementById(`list-${key}`);
             targetList.innerHTML = '';
-            
             plannerData[key].forEach(item => {
                 const entry = document.createElement('div');
                 entry.className = 'food-entry';
@@ -275,19 +299,15 @@
             });
         }
 
-        // 刪除餐點函數
         function deleteEntry(key, id) {
             plannerData[key] = plannerData[key].filter(item => item.id !== id);
             renderMealList(key);
             updateGroceryList();
         }
 
-        // 統整所有食材清單
         function updateGroceryList() {
             const box = document.getElementById('summaryBox');
             const totalCounts = {};
-
-            // 遍歷 plannerData 所有的餐點
             Object.values(plannerData).forEach(mealArray => {
                 mealArray.forEach(meal => {
                     meal.ings.forEach(ing => {
@@ -295,14 +315,11 @@
                     });
                 });
             });
-
             const keys = Object.keys(totalCounts);
             if(keys.length === 0) {
                 box.innerHTML = "等待您的計畫...";
             } else {
-                box.innerHTML = keys.map(k => `
-                    <div class="ing-tag">${k} <span>x ${totalCounts[k]}</span></div>
-                `).join('');
+                box.innerHTML = keys.map(k => `<div class="ing-tag">${k} <span>x ${totalCounts[k]}</span></div>`).join('');
             }
         }
     </script>
