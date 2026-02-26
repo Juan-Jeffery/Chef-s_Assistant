@@ -1,4 +1,4 @@
-# 🍳 Chef's Assistant (Professional Suite)
+# Chef's Assistant (Professional Suite)
 
 [![How to eat](https://img.shields.io/badge/Demo-Live_Site-92a8d1?style=for-the-badge&logo=google-chrome&logoColor=white)](https://juan-jeffery.github.io/Chef-s_Assistant/)
 
@@ -6,7 +6,7 @@ A modular, lightweight web suite designed to optimize meal planning and kitchen 
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 The system is organized into specialized modules to ensure high cohesion and shared data consistency:
 
@@ -51,7 +51,7 @@ For those moments of indecision. When you're staring blankly at the refrigerator
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 1. **Planning Phase:** Start the `Weekly Planner` to set your weekly goals and obtain a shopping list.
 
@@ -63,7 +63,7 @@ For those moments of indecision. When you're staring blankly at the refrigerator
 
 ---
 
-## 🛠️ Development Roadmap
+## Development Roadmap
 
 - [x] Automated ingredient quantity accumulation logic.
 
