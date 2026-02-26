@@ -22,7 +22,7 @@
             background-attachment: fixed;
             color: var(--text-color);
             margin: 0;
-            padding: 40px 20px 80px 20px; /* 增加底部留白給返回連結 */
+            padding: 40px 20px 80px 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -30,90 +30,65 @@
         }
 
         body::before {
-            content: "";
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-image: radial-gradient(#8e8d8a 0.5px, transparent 0.5px);
-            background-size: 30px 30px;
-            opacity: 0.1;
-            z-index: -1;
+            background-size: 30px 30px; opacity: 0.1; z-index: -1;
         }
 
         h1 {
-            font-weight: 300;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            margin-bottom: 40px;
-            color: var(--mo-grey);
-            border-bottom: 1px solid var(--mo-grey);
+            font-weight: 300; letter-spacing: 4px; text-transform: uppercase;
+            margin-bottom: 40px; color: var(--mo-grey); border-bottom: 1px solid var(--mo-grey);
             padding-bottom: 10px;
         }
 
         .container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 25px;
-            max-width: 1100px;
-            width: 100%;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px;
+            max-width: 1100px; width: 100%;
         }
 
-        @media (max-width: 900px) {
-            .container { grid-template-columns: 1fr; }
-        }
+        @media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
 
         .card {
-            background: var(--mo-white);
-            backdrop-filter: blur(10px);
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            border: 1px solid rgba(255,255,255,0.3);
-            transition: transform 0.3s;
+            background: var(--mo-white); backdrop-filter: blur(10px); border-radius: 12px;
+            padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255,255,255,0.3); transition: transform 0.3s;
         }
-
-        .card:hover { transform: translateY(-5px); }
 
         .card h2 {
-            font-size: 1.2rem;
-            margin-top: 0;
-            color: var(--mo-grey);
-            border-left: 4px solid var(--mo-blue);
-            padding-left: 10px;
+            font-size: 1.2rem; margin-top: 0; color: var(--mo-grey);
+            border-left: 4px solid var(--mo-blue); padding-left: 10px;
         }
 
-        .meal-section {
-            border-top: 1px solid rgba(0,0,0,0.05);
-            padding-top: 15px;
-            margin-top: 15px;
-        }
+        .meal-section { border-top: 1px solid rgba(0,0,0,0.05); padding-top: 15px; margin-top: 15px; }
 
         .meal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.85rem;
-            color: var(--mo-grey);
-            font-weight: bold;
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.85rem; color: var(--mo-grey); font-weight: bold;
         }
 
         .add-btn {
-            background: none;
-            border: 1px solid var(--mo-green);
-            color: var(--mo-green);
-            width: 26px; height: 26px;
-            border-radius: 50%;
-            cursor: pointer;
+            background: none; border: 1px solid var(--mo-green); color: var(--mo-green);
+            width: 26px; height: 26px; border-radius: 50%; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
         }
 
-        .add-btn:hover { background: var(--mo-green); color: white; }
-
-        .food-entry { margin-top: 8px; font-size: 0.9rem; }
+        /* 餐點條目與刪除按鈕 */
+        .food-entry { 
+            position: relative; margin-top: 12px; font-size: 0.9rem; 
+            padding-right: 30px; /* 給叉叉留空間 */
+        }
         .food-entry b { color: var(--mo-rose); display: block; }
         .food-entry span { font-size: 0.8rem; color: var(--mo-grey); }
+        
+        .del-entry-btn {
+            position: absolute; right: 0; top: 0;
+            border: none; background: none; color: #ccc;
+            cursor: pointer; font-size: 1.1rem; padding: 5px;
+            transition: color 0.2s;
+        }
+        .del-entry-btn:hover { color: var(--mo-rose); }
 
         .summary-card { background: rgba(162, 185, 188, 0.15); border: 1px dashed var(--mo-green); }
-
         .tag-cloud { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; }
         .ing-tag {
             background: white; padding: 5px 12px; border-radius: 4px;
@@ -121,42 +96,42 @@
         }
         .ing-tag span { margin-left: 8px; font-weight: bold; color: var(--mo-rose); }
 
-        /* 返回首頁連結樣式 */
         .back-link {
-            margin-top: 50px;
-            text-decoration: none;
-            color: var(--mo-grey);
-            font-size: 0.85rem;
-            letter-spacing: 2px;
-            border-bottom: 1px solid var(--mo-grey);
-            transition: all 0.3s;
-            opacity: 0.8;
+            margin-top: 50px; text-decoration: none; color: var(--mo-grey);
+            font-size: 0.85rem; letter-spacing: 2px; border-bottom: 1px solid var(--mo-grey);
         }
 
-        .back-link:hover {
-            color: var(--mo-rose);
-            border-bottom-color: var(--mo-rose);
-            opacity: 1;
-        }
-
-        /* 彈窗 */
+        /* 彈窗樣式 */
         #modalOverlay {
             display: none; position: fixed; top:0; left:0; width:100%; height:100%;
             background: rgba(0,0,0,0.3); backdrop-filter: blur(5px);
             justify-content: center; align-items: center; z-index: 1000;
         }
 
-        .modal { background: white; padding: 35px; border-radius: 12px; width: 80%; max-width: 350px; }
-        .modal h3 { font-weight: 400; margin-top: 0; color: var(--mo-grey); }
+        .modal { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 400px; max-height: 85vh; overflow-y: auto; }
+        .modal h3 { font-weight: 400; margin-top: 0; color: var(--mo-grey); text-align: center; }
         
-        input {
+        .modal-label { font-size: 0.8rem; color: var(--mo-grey); margin-bottom: 5px; display: block; }
+        input.main-input {
             width: 100%; border: none; border-bottom: 1px solid var(--mo-sand);
             padding: 10px 0; margin-bottom: 20px; outline: none; font-size: 1rem;
         }
 
-        .btn-group { display: flex; gap: 10px; justify-content: flex-end; }
-        .btn-save { background: var(--mo-blue); color: white; border: none; padding: 8px 20px; border-radius: 4px; cursor: pointer; }
-        .btn-cancel { background: none; border: 1px solid var(--mo-sand); color: var(--mo-grey); padding: 8px 20px; border-radius: 4px; cursor: pointer; }
+        .ing-row { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
+        .ing-name { flex: 2; border: none; border-bottom: 1px solid #eee; padding: 5px; outline: none; }
+        .qty-controls { flex: 1; display: flex; align-items: center; justify-content: space-between; background: #f9f9f9; border-radius: 4px; padding: 2px 5px; }
+        .qty-btn { border: none; background: none; color: var(--mo-blue); font-size: 1.2rem; cursor: pointer; padding: 0 5px; }
+        .qty-val { font-size: 0.9rem; min-width: 20px; text-align: center; }
+
+        .btn-add-row { 
+            width: 100%; padding: 8px; border: 1px dashed var(--mo-green); 
+            background: none; color: var(--mo-green); border-radius: 6px; 
+            cursor: pointer; margin-bottom: 20px; font-size: 0.85rem;
+        }
+
+        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-save { flex: 1; background: var(--mo-blue); color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; }
+        .btn-cancel { flex: 1; background: none; border: 1px solid var(--mo-sand); color: var(--mo-grey); padding: 12px; border-radius: 6px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -181,8 +156,13 @@
     <div id="modalOverlay">
         <div class="modal">
             <h3>新增餐點</h3>
-            <input type="text" id="foodName" placeholder="餐點名稱（如：番茄炒蛋）">
-            <input type="text" id="ingInput" placeholder="食材（多個請用逗號隔開）">
+            <span class="modal-label">餐點名稱</span>
+            <input type="text" id="foodName" class="main-input" placeholder="例如：番茄炒蛋">
+            
+            <span class="modal-label">食材清單</span>
+            <div id="ingRowsContainer"></div>
+            <button class="btn-add-row" onclick="addIngRow()">＋ 新增食材</button>
+
             <div class="btn-group">
                 <button class="btn-cancel" onclick="closeModal()">取消</button>
                 <button class="btn-save" onclick="saveData()">確認加入</button>
@@ -193,12 +173,18 @@
     <script>
         const meals = ['早餐', '午餐', '晚餐'];
         let activeSelection = {};
-        let inventory = [];
+        
+        // 核心數據結構：按時間格儲存餐點及其食材
+        // 結構：{ "週一-早餐": [ {id, food, ings:[{name, qty}]} ] }
+        let plannerData = {};
 
+        // 初始化
         document.querySelectorAll('.card[data-day]').forEach(card => {
             const day = card.dataset.day;
             const container = card.querySelector('.content');
             meals.forEach(m => {
+                const key = `${day}-${m}`;
+                plannerData[key] = [];
                 const div = document.createElement('div');
                 div.className = 'meal-section';
                 div.innerHTML = `
@@ -209,41 +195,114 @@
             });
         });
 
+        function addIngRow(name = '', qty = 1) {
+            const container = document.getElementById('ingRowsContainer');
+            const row = document.createElement('div');
+            row.className = 'ing-row';
+            row.innerHTML = `
+                <input type="text" class="ing-name" placeholder="食材名稱" value="${name}">
+                <div class="qty-controls">
+                    <button class="qty-btn" onclick="updateRowQty(this, -1)">-</button>
+                    <span class="qty-val">${qty}</span>
+                    <button class="qty-btn" onclick="updateRowQty(this, 1)">+</button>
+                </div>
+                <button style="border:none; background:none; color:#ddd; cursor:pointer;" onclick="this.parentElement.remove()">✕</button>
+            `;
+            container.appendChild(row);
+        }
+
+        function updateRowQty(btn, delta) {
+            const valSpan = btn.parentElement.querySelector('.qty-val');
+            let current = parseInt(valSpan.innerText);
+            current = Math.max(1, current + delta);
+            valSpan.innerText = current;
+        }
+
         function openModal(d, m) {
             activeSelection = {d, m};
+            document.getElementById('ingRowsContainer').innerHTML = '';
+            addIngRow();
             document.getElementById('modalOverlay').style.display = 'flex';
         }
 
         function closeModal() {
             document.getElementById('modalOverlay').style.display = 'none';
             document.getElementById('foodName').value = '';
-            document.getElementById('ingInput').value = '';
         }
 
         function saveData() {
-            const food = document.getElementById('foodName').value.trim();
-            const ings = document.getElementById('ingInput').value.trim();
-            if(!food || !ings) return;
-            const ingArr = ings.split(/[，, \s]+/).filter(i => i);
-            ingArr.forEach(item => inventory.push({ name: item }));
-            const targetList = document.getElementById(`list-${activeSelection.d}-${activeSelection.m}`);
-            const entry = document.createElement('div');
-            entry.className = 'food-entry';
-            entry.innerHTML = `<b>${food}</b><span>${ingArr.join(' / ')}</span>`;
-            targetList.appendChild(entry);
+            const foodName = document.getElementById('foodName').value.trim();
+            const rows = document.querySelectorAll('.ing-row');
+            let tempIngs = [];
+            
+            rows.forEach(row => {
+                const name = row.querySelector('.ing-name').value.trim();
+                const qty = parseInt(row.querySelector('.qty-val').innerText);
+                if(name) tempIngs.push({ name, qty });
+            });
+
+            if(!foodName || tempIngs.length === 0) return;
+
+            const key = `${activeSelection.d}-${activeSelection.m}`;
+            const entryId = Date.now(); // 唯一識別碼，用於刪除
+            
+            plannerData[key].push({
+                id: entryId,
+                food: foodName,
+                ings: tempIngs
+            });
+
+            renderMealList(key);
             updateGroceryList();
             closeModal();
         }
 
+        // 渲染特定時間格的餐點清單
+        function renderMealList(key) {
+            const targetList = document.getElementById(`list-${key}`);
+            targetList.innerHTML = '';
+            
+            plannerData[key].forEach(item => {
+                const entry = document.createElement('div');
+                entry.className = 'food-entry';
+                const ingText = item.ings.map(i => `${i.name}x${i.qty}`).join(' / ');
+                entry.innerHTML = `
+                    <b>${item.food}</b>
+                    <span>${ingText}</span>
+                    <button class="del-entry-btn" onclick="deleteEntry('${key}', ${item.id})">✕</button>
+                `;
+                targetList.appendChild(entry);
+            });
+        }
+
+        // 刪除餐點函數
+        function deleteEntry(key, id) {
+            plannerData[key] = plannerData[key].filter(item => item.id !== id);
+            renderMealList(key);
+            updateGroceryList();
+        }
+
+        // 統整所有食材清單
         function updateGroceryList() {
             const box = document.getElementById('summaryBox');
-            const counts = {};
-            inventory.forEach(i => counts[i.name] = (counts[i.name] || 0) + 1);
-            const keys = Object.keys(counts);
+            const totalCounts = {};
+
+            // 遍歷 plannerData 所有的餐點
+            Object.values(plannerData).forEach(mealArray => {
+                mealArray.forEach(meal => {
+                    meal.ings.forEach(ing => {
+                        totalCounts[ing.name] = (totalCounts[ing.name] || 0) + ing.qty;
+                    });
+                });
+            });
+
+            const keys = Object.keys(totalCounts);
             if(keys.length === 0) {
                 box.innerHTML = "等待您的計畫...";
             } else {
-                box.innerHTML = keys.map(k => `<div class="ing-tag">${k} <span>x ${counts[k]}</span></div>`).join('');
+                box.innerHTML = keys.map(k => `
+                    <div class="ing-tag">${k} <span>x ${totalCounts[k]}</span></div>
+                `).join('');
             }
         }
     </script>
