@@ -22,7 +22,6 @@ Chef-s_Assistant/
 └── randomizer/
     └── randomizer.html      # I Don't Know (Decision Roulette)
 ```
-
 ---
 
 ## ✨ Introduction to Three Core Modules
