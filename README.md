@@ -11,7 +11,7 @@ A modular, lightweight web suite designed to optimize meal planning and kitchen 
 The system is organized into specialized modules to ensure high cohesion and shared data consistency:
 
 ```bash
-Chef-s_Assistant/
+Chef-s_Assistant/ 
 ├── index.html          # Gateway (Main Entry)   
 ├── assistant/
 │   └── assistant.html      # Meal Planner (Advanced Scheduling)
