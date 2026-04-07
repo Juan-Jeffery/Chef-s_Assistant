@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Weekly Planner | Chef's Assistant</title>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         :root {
             --mo-blue: #92a8d1;
@@ -22,28 +23,39 @@
             background-attachment: fixed;
             color: var(--text-color);
             margin: 0;
-            padding: 40px 20px 80px 20px;
+            padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
         }
 
-        body::before {
-            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        /* 截圖包裝層 */
+        #captureArea {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            background: var(--bg-gradient);
+            position: relative;
+        }
+
+        #captureArea::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background-image: radial-gradient(#8e8d8a 0.5px, transparent 0.5px);
-            background-size: 30px 30px; opacity: 0.1; z-index: -1;
+            background-size: 30px 30px; opacity: 0.1; z-index: 0;
         }
 
         h1 {
             font-weight: 300; letter-spacing: 4px; text-transform: uppercase;
             margin-bottom: 40px; color: var(--mo-grey); border-bottom: 1px solid var(--mo-grey);
-            padding-bottom: 10px;
+            padding-bottom: 10px; position: relative; z-index: 1;
         }
 
         .container {
             display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px;
-            max-width: 1100px; width: 100%;
+            max-width: 1100px; width: 100%; position: relative; z-index: 1;
         }
 
         @media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
@@ -92,10 +104,50 @@
         }
         .ing-tag span { margin-left: 8px; font-weight: bold; color: var(--mo-rose); }
 
-        .back-link {
-            margin-top: 50px; text-decoration: none; color: var(--mo-grey);
-            font-size: 0.85rem; letter-spacing: 2px; border-bottom: 1px solid var(--mo-grey);
+        /* 底部按鈕區 - 返回在左，儲存在右 */
+        .bottom-nav {
+            margin: 50px 0 80px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 40px; /* 按鈕間距 */
+            width: 100%;
+            max-width: 1100px;
         }
+
+        @media (max-width: 600px) {
+            .bottom-nav { flex-direction: column-reverse; gap: 25px; } /* 手機版返回在下 */
+        }
+
+        .save-img-btn {
+            background: var(--mo-rose);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            box-shadow: 0 4px 15px rgba(177, 133, 151, 0.3);
+            transition: 0.3s;
+            font-weight: bold;
+        }
+
+        .save-img-btn:hover {
+            background: #a07485;
+            transform: translateY(-2px);
+        }
+
+        .back-link {
+            text-decoration: none; 
+            color: var(--mo-grey);
+            font-size: 0.9rem; 
+            letter-spacing: 2px; 
+            border-bottom: 1px solid var(--mo-grey);
+            padding-bottom: 2px;
+            transition: 0.3s;
+        }
+        .back-link:hover { color: var(--mo-blue); border-color: var(--mo-blue); }
 
         #modalOverlay {
             display: none; position: fixed; top:0; left:0; width:100%; height:100%;
@@ -106,24 +158,18 @@
         .modal { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 400px; max-height: 85vh; overflow-y: auto; }
         .modal h3 { font-weight: 400; margin-top: 0; color: var(--mo-grey); text-align: center; }
         
+        /* 模態視窗內輸入樣式 */
         .modal-label { font-size: 0.8rem; color: var(--mo-grey); margin-bottom: 5px; display: block; }
         input.main-input {
             width: 100%; border: none; border-bottom: 1px solid var(--mo-sand);
             padding: 10px 0; margin-bottom: 20px; outline: none; font-size: 1rem;
         }
-
         .ing-row { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
         .ing-name { flex: 2; border: none; border-bottom: 1px solid #eee; padding: 5px; outline: none; }
         .qty-controls { flex: 1; display: flex; align-items: center; justify-content: space-between; background: #f9f9f9; border-radius: 4px; padding: 2px 5px; }
         .qty-btn { border: none; background: none; color: var(--mo-blue); font-size: 1.2rem; cursor: pointer; padding: 0 5px; }
         .qty-val { font-size: 0.9rem; min-width: 20px; text-align: center; }
-
-        .btn-add-row { 
-            width: 100%; padding: 8px; border: 1px dashed var(--mo-green); 
-            background: none; color: var(--mo-green); border-radius: 6px; 
-            cursor: pointer; margin-bottom: 20px; font-size: 0.85rem;
-        }
-
+        .btn-add-row { width: 100%; padding: 8px; border: 1px dashed var(--mo-green); background: none; color: var(--mo-green); border-radius: 6px; cursor: pointer; margin-bottom: 20px; font-size: 0.85rem; }
         .btn-group { display: flex; gap: 10px; margin-top: 10px; }
         .btn-save { flex: 1; background: var(--mo-blue); color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; }
         .btn-cancel { flex: 1; background: none; border: 1px solid var(--mo-sand); color: var(--mo-grey); padding: 12px; border-radius: 6px; cursor: pointer; }
@@ -131,22 +177,27 @@
 </head>
 <body>
 
-    <h1>Weekly Planner</h1>
+    <div id="captureArea">
+        <h1>Weekly Planner</h1>
 
-    <div class="container">
-        <div class="card" data-day="週一"><h2>週一</h2><div class="content"></div></div>
-        <div class="card" data-day="週二"><h2>週二</h2><div class="content"></div></div>
-        <div class="card" data-day="週三"><h2>週三</h2><div class="content"></div></div>
-        <div class="card" data-day="週四"><h2>週四</h2><div class="content"></div></div>
-        <div class="card" data-day="週五"><h2>週五</h2><div class="content"></div></div>
-        
-        <div class="card summary-card">
-            <h2>食材清單統整</h2>
-            <div class="tag-cloud" id="summaryBox">等待您的計畫...</div>
+        <div class="container">
+            <div class="card" data-day="週一"><h2>週一</h2><div class="content"></div></div>
+            <div class="card" data-day="週二"><h2>週二</h2><div class="content"></div></div>
+            <div class="card" data-day="週三"><h2>週三</h2><div class="content"></div></div>
+            <div class="card" data-day="週四"><h2>週四</h2><div class="content"></div></div>
+            <div class="card" data-day="週五"><h2>週五</h2><div class="content"></div></div>
+            
+            <div class="card summary-card">
+                <h2>食材清單統整</h2>
+                <div class="tag-cloud" id="summaryBox">等待您的計畫...</div>
+            </div>
         </div>
     </div>
 
-    <a href="../index.html" class="back-link">← 返回首頁</a>
+    <div class="bottom-nav">
+        <a href="../index.html" class="back-link">← 返回首頁</a>
+        <button class="save-img-btn" onclick="saveAsImage()">儲存計畫表圖片</button>
+    </div>
 
     <div id="modalOverlay">
         <div class="modal">
@@ -167,7 +218,6 @@
         const mealsTypes = ['早餐', '午餐', '晚餐'];
         const days = ['週一', '週二', '週三', '週四', '週五'];
         
-        // --- 預設餐點資料庫 ---
         const defaultPool = {
             '早餐': [
                 { food: '三明治', ings: [{ name: '吐司', qty: 2 }, { name: '火腿', qty: 1 }] },
@@ -189,7 +239,7 @@
         let plannerData = {};
         let activeSelection = {};
 
-        // 初始化頁面
+        // 初始化
         document.querySelectorAll('.card[data-day]').forEach(card => {
             const day = card.dataset.day;
             const container = card.querySelector('.content');
@@ -199,36 +249,33 @@
                 const div = document.createElement('div');
                 div.className = 'meal-section';
                 div.innerHTML = `
-                    <div class="meal-header"><span>${m}</span><button class="add-btn" onclick="openModal('${day}', '${m}')">+</button></div>
+                    <div class="meal-header">
+                        <span>${m}</span>
+                        <button class="add-btn html2canvas-ignore" onclick="openModal('${day}', '${m}')">+</button>
+                    </div>
                     <div id="list-${day}-${m}"></div>
                 `;
                 container.appendChild(div);
             });
         });
 
-        // --- 隨機生成預設餐點功能 ---
         function generateRandomPlan() {
             days.forEach(day => {
                 mealsTypes.forEach(type => {
                     const key = `${day}-${type}`;
-                    // 從 Pool 中隨機選一個
                     const pool = defaultPool[type];
                     const randomPick = pool[Math.floor(Math.random() * pool.length)];
-                    
-                    // 加入資料結構 (深拷貝 ings 以防引用問題)
                     plannerData[key].push({
                         id: Date.now() + Math.random(),
                         food: randomPick.food,
                         ings: JSON.parse(JSON.stringify(randomPick.ings))
                     });
-                    
                     renderMealList(key);
                 });
             });
             updateGroceryList();
         }
 
-        // 頁面加載後執行隨機生成
         window.onload = generateRandomPlan;
 
         function addIngRow(name = '', qty = 1) {
@@ -293,7 +340,7 @@
                 entry.innerHTML = `
                     <b>${item.food}</b>
                     <span>${ingText}</span>
-                    <button class="del-entry-btn" onclick="deleteEntry('${key}', ${item.id})">✕</button>
+                    <button class="del-entry-btn html2canvas-ignore" onclick="deleteEntry('${key}', ${item.id})">✕</button>
                 `;
                 targetList.appendChild(entry);
             });
@@ -321,6 +368,31 @@
             } else {
                 box.innerHTML = keys.map(k => `<div class="ing-tag">${k} <span>x ${totalCounts[k]}</span></div>`).join('');
             }
+        }
+
+        // --- 核心儲存圖片功能 ---
+        function saveAsImage() {
+            const captureArea = document.getElementById('captureArea');
+            const btn = document.querySelector('.save-img-btn');
+            
+            const originalText = btn.innerText;
+            btn.innerText = "生成中...";
+            btn.disabled = true;
+
+            html2canvas(captureArea, {
+                useCORS: true,
+                scale: 2, 
+                backgroundColor: null, 
+                ignoreElements: (el) => el.classList.contains('html2canvas-ignore') 
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `Weekly-Planner-${new Date().toLocaleDateString()}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                btn.innerText = originalText;
+                btn.disabled = false;
+            });
         }
     </script>
 </body>
