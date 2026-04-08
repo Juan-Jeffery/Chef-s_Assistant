@@ -20,7 +20,7 @@ Chef-s_Assistant/
 ├── planner/
 │   └── planner.html      # Weekly Planner (Grocery Aggregator)
 └── randomizer/
-    └── randomizer.html      # I Don't Know (Decision Roulette)
+    └── randomizer.html      # I Don't Know (Decision Roulette) 
 ```
 ---
 
